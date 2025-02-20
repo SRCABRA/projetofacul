@@ -881,7 +881,12 @@ PrefabInstance:
       value: Enemy
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 2644224431129926994, guid: 57a706f097b0fdd40a0a42733dfa70dd, type: 3}
+    - {fileID: 2962246883911782492, guid: 57a706f097b0fdd40a0a42733dfa70dd, type: 3}
+    - {fileID: 8904846273338169344, guid: 57a706f097b0fdd40a0a42733dfa70dd, type: 3}
+    - {fileID: 6613600432517715631, guid: 57a706f097b0fdd40a0a42733dfa70dd, type: 3}
+    - {fileID: 330337241008425748, guid: 57a706f097b0fdd40a0a42733dfa70dd, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 57a706f097b0fdd40a0a42733dfa70dd, type: 3}

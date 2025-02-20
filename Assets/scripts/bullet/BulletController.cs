@@ -18,6 +18,24 @@ public class BulletController : MonoBehaviour
             transform.position += direction * speed * Time.deltaTime;
             transform.rotation = Quaternion.LookRotation(direction);
         }
+    }
 
+    void FindClosestEnemy()
+    {
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");  // Busca todos os inimigos na cena
+        float closestDistance = Mathf.Infinity;
+        Transform closestEnemy = null;
+
+        foreach (GameObject e in enemies)
+        {
+            float distance = Vector3.Distance(transform.position, e.transform.position);
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestEnemy = e.transform;
+            }
+        }
+
+        enemy = closestEnemy.gameObject;
     }
 }
