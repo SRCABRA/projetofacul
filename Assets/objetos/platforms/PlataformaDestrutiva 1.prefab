@@ -3192,7 +3192,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5420212559312687165}
   m_Layer: 0
-  m_Name: PlataformaDestrutiva
+  m_Name: PlataformaDestrutiva 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
