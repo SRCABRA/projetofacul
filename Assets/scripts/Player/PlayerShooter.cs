@@ -13,7 +13,7 @@ public class PlayerShooter : MonoBehaviour
     void Update()
     {
         timer += Time.deltaTime;
-        if(timer > 1f){
+        if(timer > 1f && GameObject.FindGameObjectsWithTag("Enemy").Length > 0){ //verifica se o tempo é maior que 1 segundo e se tem inimigos na cena
                 Shoot();
                 timer = 0;
             }

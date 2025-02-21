@@ -2,25 +2,31 @@ using UnityEngine;
 
 public class BulletController : MonoBehaviour
 {
-    public GameObject enemy;
     public float speed = 10.0f;
+    private Transform enemy;  // para pegar a posição, rotação e escala do inimigo
+
     void Start()
     {
-        
+        // Encontra um inimigo automaticamente
+        FindClosestEnemy();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if(enemy != null){
-            Vector3 direction = (enemy.transform.position - transform.position).normalized;
-
-            transform.position += direction * speed * Time.deltaTime;
-            transform.rotation = Quaternion.LookRotation(direction);
+        // Se não tem inimigo, destrua a bala
+        if (enemy == null)
+        {
+            Destroy(gameObject);
+            return;
         }
+
+        // Move o projétil na direção do inimigo
+        Vector3 direction = (enemy.position - transform.position).normalized;
+        transform.position += direction * speed * Time.deltaTime;
+        transform.rotation = Quaternion.LookRotation(direction);
     }
 
-    void FindClosestEnemy()
+    void FindClosestEnemy() // Encontra o inimigo mais próximo
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");  // Busca todos os inimigos na cena
         float closestDistance = Mathf.Infinity;
@@ -36,6 +42,6 @@ public class BulletController : MonoBehaviour
             }
         }
 
-        enemy = closestEnemy.gameObject;
+        enemy = closestEnemy;  // Define o inimigo mais próximo
     }
 }
