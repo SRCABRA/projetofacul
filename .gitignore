@@ -71,3 +71,14 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+Assets/scripts/bullet.meta
+Assets/scripts.meta
+Assets/pinto.unity.meta
+Assets/pinto.unity
+Assets/objetos/platforms/PlataformaDestrutiva.prefab.meta
+Assets/objetos/platforms/PlataformaDestrutiva.prefab
+Assets/objetos/platforms/PlataformaDestrutiva.fbx.meta
+Assets/objetos/platforms/PlataformaDestrutiva.fbx
+Assets/objetos/platforms/PlataformaDestrutiva.blend1
+Assets/objetos/platforms/PlataformaDestrutiva.blend1.meta
+Assets/objetos/platforms/PlataformaDestrutiva 1.prefab.meta
