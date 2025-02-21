@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/materials/tornado/Tornado.prefab.meta
 guid: 56cbadb4c553a58469c54d3ae11b8064
+========
+guid: 80e5446541571cf4bacbb2aedb3c3bb3
+>>>>>>>> origin/gabriel:Assets/objetos/platforms/PlataformaDestrutiva.prefab.meta
 PrefabImporter:
   externalObjects: {}
   userData: 

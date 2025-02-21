@@ -3,11 +3,10 @@ using UnityEngine;
 public class BulletController : MonoBehaviour
 {
     public float speed = 10.0f;
-    private Transform enemy;  // para pegar a posição, rotação e escala do inimigo
+    private Transform enemy; // verifica a posição do inimigo
 
     void Start()
     {
-        // Encontra um inimigo automaticamente
         FindClosestEnemy();
     }
 
@@ -26,7 +25,7 @@ public class BulletController : MonoBehaviour
         transform.rotation = Quaternion.LookRotation(direction);
     }
 
-    void FindClosestEnemy() // Encontra o inimigo mais próximo
+    void FindClosestEnemy()
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");  // Busca todos os inimigos na cena
         float closestDistance = Mathf.Infinity;

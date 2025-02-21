@@ -16,11 +16,9 @@ public class WaterController : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.tag == "Player" || collision.gameObject.tag == "Enemy")
-        {
-            collision.gameObject.GetComponent<PlayerController1>().gravity = 0f;
+        
             Destroy(collision.gameObject);
-            Debug.Log("Player morreu");
-        }
+            Debug.Log(collision.gameObject.name + "foi destruido");
+        
     }
 }
