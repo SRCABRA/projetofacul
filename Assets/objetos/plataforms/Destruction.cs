@@ -44,33 +44,52 @@ public class Destruction : MonoBehaviour {
     private void OnTriggerEnter(Collider other) {
         if (other.gameObject.CompareTag("Player")) {
             Debug.Log("Player colidiu com a plataforma");
-            StartCoroutine(BreakPlataform()); // Inicia a coroutine de destruição da plataforma
+            StartCoroutine(ChangeColorAndBreakPlatform()); // Inicia a coroutine de mudança de cor e destruição da plataforma
         }
     }
 
-    // Coroutine que gerencia a destruição e respawn das peças
-    private IEnumerator BreakPlataform() {
-        yield return new WaitForSeconds(waitTime); // Espera pelo tempo especificado antes de destruir
+    // Coroutine que gerencia a mudança de cor e destruição das peças
+    private IEnumerator ChangeColorAndBreakPlatform() {
+        float elapsedTime = 0f;
+        float duration = waitTime; // Duração da mudança de cor
+
+        // Itera sobre todas as peças e armazena suas cores originais
+        Dictionary<PieceInfo, Color> originalColors = new Dictionary<PieceInfo, Color>();
+        foreach (PieceInfo piece in pieces) {
+            Renderer renderer = piece.transform.GetComponent<Renderer>();
+            if (renderer != null) {
+                originalColors[piece] = renderer.material.color;
+            }
+        }
+
+        // Gradualmente muda a cor das peças para vermelho
+        while (elapsedTime < duration) {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / duration;
+
+            foreach (PieceInfo piece in pieces) {
+                Renderer renderer = piece.transform.GetComponent<Renderer>();
+                if (renderer != null) {
+                    renderer.material.color = Color.Lerp(originalColors[piece], Color.red, t);
+                }
+            }
+
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(waitTime - duration); // Espera pelo tempo restante antes de destruir
 
         // Destrói a plataforma
         foreach (PieceInfo piece in pieces) {
             piece.rigidbody.isKinematic = false; // Desativa o modo kinematic do rigidbody
 
             // Gera forças aleatórias para aplicar nas peças
-            float x = UnityEngine.Random.Range(minForce, maxForce);
-            float y = UnityEngine.Random.Range(minForce, maxForce);
-            float z = UnityEngine.Random.Range(minForce, maxForce);
-
-            piece.rigidbody.AddForce(x, y, z, ForceMode.Force); // Aplica a força ao rigidbody
-        }
-
-        yield return new WaitForSeconds(respawnTime); // Espera pelo tempo especificado antes do respawn
-
-        // Respawna a plataforma
-        foreach (PieceInfo piece in pieces) {
-            piece.rigidbody.isKinematic = true; // Reativa o modo kinematic do rigidbody
-            piece.transform.position = piece.startPosition; // Restaura a posição inicial
-            piece.transform.rotation = piece.startRotation; // Restaura a rotação inicial
+            Vector3 force = new Vector3(
+                UnityEngine.Random.Range(minForce, maxForce),
+                UnityEngine.Random.Range(minForce, maxForce),
+                UnityEngine.Random.Range(minForce, maxForce)
+            );
+            piece.rigidbody.AddForce(force);
         }
     }
 }

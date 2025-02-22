@@ -20,11 +20,12 @@ public class PlayerController1 : MonoBehaviour
 
     private Transform MyCamera; //camera do personagem
     private CharacterController controller; //controlador de personagem            
+    public Vector3 cameraOffset; // offset da câmera em relação ao jogador
 
     void Start(){
-        controller = GetComponent<CharacterController>(); //pega o controlador de 
+        controller = GetComponent<CharacterController>(); //pega o controlador de personagem
         MyCamera = Camera.main.transform; //pega a camera principal
-
+        cameraOffset = MyCamera.position - transform.position; // calcula o offset inicial da câmera
     }   
 
 
@@ -38,6 +39,8 @@ public class PlayerController1 : MonoBehaviour
         position.y = 0f; //zera o eixo y    
 
         controller.Move(position * speed * Time.deltaTime); //movimenta o personagem
+
+        
         
 
 
@@ -58,9 +61,12 @@ public class PlayerController1 : MonoBehaviour
 
 
 
+
+
+
+        // Atualiza a posição da câmera para seguir o jogador
+        Vector3 newCameraPosition = transform.position + cameraOffset;
+        newCameraPosition.y = transform.position.y + cameraOffset.y; // ajusta a altura da câmera para seguir o jogador
+        MyCamera.position = newCameraPosition;
     }
 }
-
-
-
-

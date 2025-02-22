@@ -43,4 +43,13 @@ public class BulletController : MonoBehaviour
 
         enemy = closestEnemy;  // Define o inimigo mais próximo
     }
+
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if(collision.gameObject.CompareTag("Enemy"))
+        {
+            Destroy(gameObject);
+        }
+    }
 }

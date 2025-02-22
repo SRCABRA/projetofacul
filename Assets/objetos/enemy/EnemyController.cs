@@ -1,9 +1,12 @@
+using System;
 using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
     public Transform player;
+    public float life = 3f;
     public float speed = 5f;
+    public float viewDistance = 40f;	
 
     void Start()
     {
@@ -15,6 +18,10 @@ public class EnemyController : MonoBehaviour
     {
         FindClosestPlayer();
         MoveTowardsPlayer();
+
+        if (life <= 0){
+                Destroy(gameObject);
+        }
     }
 
     void FindClosestPlayer()
@@ -26,7 +33,7 @@ public class EnemyController : MonoBehaviour
         foreach (GameObject p in players)  // Para cada jogador na cena
         {
             float distance = Vector3.Distance(transform.position, p.transform.position); // Calcula a distância entre o inimigo e o jogador
-            if (distance < closestDistance)
+            if (distance < closestDistance && distance < viewDistance) // Se a distância for menor que a menor distância atual e menor que a distância de visão
             {
                 closestDistance = distance;
                 closestPlayer = p.transform;
@@ -44,5 +51,13 @@ public class EnemyController : MonoBehaviour
             direction.y = 0; // Ignora a componente y
             transform.position += direction * speed * Time.deltaTime;
         }
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Bullet")){
+            life -= 1;
+        }
+
     }
 }

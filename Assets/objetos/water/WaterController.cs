@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class WaterController : MonoBehaviour
 {
-    public float speed = 0.04f;
+    public float speed = 0.01f;
     void Start()
     {
         
@@ -12,6 +12,7 @@ public class WaterController : MonoBehaviour
     void Update()
     {
         transform.position += new Vector3(0f, speed, 0f);
+        speed = speed += 0.000001f;
     }
 
     void OnCollisionEnter(Collision collision)
