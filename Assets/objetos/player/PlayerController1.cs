@@ -20,11 +20,16 @@ public class PlayerController1 : MonoBehaviour
     private CharacterController controller; // controlador de personagem            
     public Vector3 cameraOffset; // offset da câmera em relação ao jogador
 
-    // Variáveis da nova habilidade
+    // Variáveis do STOMP
     public float abilityActivationHeight = 5.0f; // altura mínima para ativar a habilidade
     public float extraGravityForce = -30f; // força extra para simular aumento da gravidade
     public float abilityCooldown = 2f; // tempo de recarga da habilidade
+
+    public GameObject AreaAttack; // prefab da área de ataque
     private float lastAbilityTime = -10f; // armazena o último tempo em que a habilidade foi acionada
+    private bool stompActivated = false; // variável para rastrear se a habilidade de STOMP foi ativada
+
+
 
     void Start()
     {
@@ -67,6 +72,7 @@ public class PlayerController1 : MonoBehaviour
             {
                 gravity = extraGravityForce;
                 lastAbilityTime = Time.time;
+                stompActivated = true; // marca que a habilidade de STOMP foi ativada
                 Debug.Log("Habilidade ativada: aumentando a gravidade!");
             }
             else
@@ -86,5 +92,23 @@ public class PlayerController1 : MonoBehaviour
         Vector3 newCameraPosition = transform.position + cameraOffset;
         newCameraPosition.y = transform.position.y + cameraOffset.y;
         MyCamera.position = newCameraPosition;
+    }
+
+
+    void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        // Verifica se o jogador colidiu com o chão após usar a habilidade de STOMP
+        if (stompActivated && ((1 << hit.gameObject.layer) & colisaoLayer) != 0)
+        {
+            Vector3 areaAttackPosition = new Vector3(transform.position.x, foot.position.y, transform.position.z);
+            Instantiate(AreaAttack, areaAttackPosition, Quaternion.identity); // cria o objeto AreaAttack na posição do pé
+            stompActivated = false; // reseta a variável stompActivated
+        }
+
+        // Verifica se o jogador colidiu com um inimigo
+        if (hit.gameObject.CompareTag("Enemy"))
+        {
+            Debug.Log("Player colidiu com inimigo!");
+        }
     }
 }
