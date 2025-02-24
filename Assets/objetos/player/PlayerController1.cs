@@ -7,66 +7,84 @@ using UnityEngine.TextCore.Text;
 
 public class PlayerController1 : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // Variáveis de movimentação e física
+    public float speed = 15.0f; // velocidade do personagem
+    public float gravity = -10f; // gravidade normal
+    public float jumpForce = 5f; // força do pulo
+    private bool isGrounded; // verifica se o personagem está no chão 
 
-    public float speed = 15.0f; //velocidade do personagem
-    public float gravity = -10f; //gravidade 
-    private bool isGrounded; //verifica se o personagem está no chão 
-    public float jumpForce = 5f; //força do pulo   
-    [SerializeField] private Transform foot; //verifica se o personagem está no chão
+    [SerializeField] private Transform foot; // ponto para verificação de colisão com o chão
     [SerializeField] private LayerMask colisaoLayer;
 
-    
-
-    private Transform MyCamera; //camera do personagem
-    private CharacterController controller; //controlador de personagem            
+    private Transform MyCamera; // câmera do personagem
+    private CharacterController controller; // controlador de personagem            
     public Vector3 cameraOffset; // offset da câmera em relação ao jogador
 
-    void Start(){
-        controller = GetComponent<CharacterController>(); //pega o controlador de personagem
-        MyCamera = Camera.main.transform; //pega a camera principal
+    // Variáveis da nova habilidade
+    public float abilityActivationHeight = 5.0f; // altura mínima para ativar a habilidade
+    public float extraGravityForce = -30f; // força extra para simular aumento da gravidade
+    public float abilityCooldown = 2f; // tempo de recarga da habilidade
+    private float lastAbilityTime = -10f; // armazena o último tempo em que a habilidade foi acionada
+
+    void Start()
+    {
+        controller = GetComponent<CharacterController>(); // pega o controlador de personagem
+        MyCamera = Camera.main.transform; // pega a câmera principal
         cameraOffset = MyCamera.position - transform.position; // calcula o offset inicial da câmera
     }   
 
+    void Update()
+    {
+        // Captura inputs de movimentação e calcula a direção relativa à câmera
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+        Vector3 position = new Vector3(horizontal, 0, vertical);
+        position = MyCamera.TransformDirection(position);
+        position.y = 0f; // zera o eixo y
 
-    void Update(){
-        float horizontal = Input.GetAxis("Horizontal"); //pega o input do teclado para movimento horizontal
-        float vertical = Input.GetAxis("Vertical"); //pega o input do teclado para movimento vertical
-        Vector3 position = new Vector3(horizontal, 0, vertical);  //cria um vetor de posição com os inputs do teclado
-       
+        // Movimenta o personagem
+        controller.Move(position * speed * Time.deltaTime);
 
-        position = MyCamera.TransformDirection(position); //pega a direção da camera
-        position.y = 0f; //zera o eixo y    
-
-        controller.Move(position * speed * Time.deltaTime); //movimenta o personagem
-
-        
-        
-
-
-        if (position != Vector3.zero){
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(position), Time.deltaTime * 10); //rotaciona o personagem na direção do movimento
+        // Rotaciona o personagem na direção do movimento
+        if (position != Vector3.zero)
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(position), Time.deltaTime * 10);
         }
         
-        isGrounded = Physics.CheckSphere(foot.position, 0.3f, colisaoLayer); //verifica se o personagem está no chão
+        // Verifica se o personagem está no chão
+        isGrounded = Physics.CheckSphere(foot.position, 0.3f, colisaoLayer);
 
-        if(Input.GetButtonDown("Jump") && isGrounded){ //verifica se o personagem está no chão e aplica uma força para pular
+        // Código de pulo: se o personagem estiver no chão e o botão de pulo for pressionado
+        if (Input.GetButtonDown("Jump") && isGrounded)
+        {
             gravity = jumpForce;
         }
-        if(gravity  > -10f){
+
+        // Nova feature: se o jogador pressionar a tecla E, ativa a habilidade se estiver em altura suficiente
+        if (Input.GetKeyDown(KeyCode.E) && Time.time >= lastAbilityTime + abilityCooldown)
+        {
+            if (transform.position.y >= abilityActivationHeight)
+            {
+                gravity = extraGravityForce;
+                lastAbilityTime = Time.time;
+                Debug.Log("Habilidade ativada: aumentando a gravidade!");
+            }
+            else
+            {
+                Debug.Log("Altura insuficiente para ativar a habilidade.");
+            }
+        }
+
+        // Atualiza a gravidade: aplica aceleração para simular efeito de queda
+        if (gravity > -10f)
+        {
             gravity += -25f * Time.deltaTime;
         }
-        controller.Move(new Vector3(0, gravity, 0) * Time.deltaTime); //aplica a gravidade no personagem
-
-
-
-
-
-
+        controller.Move(new Vector3(0, gravity, 0) * Time.deltaTime);
 
         // Atualiza a posição da câmera para seguir o jogador
         Vector3 newCameraPosition = transform.position + cameraOffset;
-        newCameraPosition.y = transform.position.y + cameraOffset.y; // ajusta a altura da câmera para seguir o jogador
+        newCameraPosition.y = transform.position.y + cameraOffset.y;
         MyCamera.position = newCameraPosition;
     }
 }
