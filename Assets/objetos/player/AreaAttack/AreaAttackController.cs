@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class AreaAttackController : MonoBehaviour
 {
-    public float timerDuration = 1.0f;
+    public float timerDuration = 0.5f;
     private float timer = 0.0f;
 
     void Start()

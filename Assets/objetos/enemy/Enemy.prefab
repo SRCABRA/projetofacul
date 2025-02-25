@@ -179,9 +179,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 0}
-  life: 3
+  life: 10
   speed: 5
   viewDistance: 50
+  danobulletbase: 1
+  danoAreaAttack: 10
 --- !u!54 &7561143976102276269
 Rigidbody:
   m_ObjectHideFlags: 0

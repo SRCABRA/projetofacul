@@ -8,6 +8,9 @@ public class EnemyController : MonoBehaviour
     public float speed = 5f;
     public float viewDistance = 40f;	
 
+    public float danobulletbase = 1f;
+    public float danoAreaAttack = 3f;  
+
     void Start()
     {
         
@@ -56,7 +59,10 @@ public class EnemyController : MonoBehaviour
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Bullet")){
-            life -= 1;
+            life -= danobulletbase;
+        }
+        if(collision.gameObject.CompareTag("AreaAttack")){
+            life -= danoAreaAttack;
         }
 
     }

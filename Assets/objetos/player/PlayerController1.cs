@@ -29,14 +29,20 @@ public class PlayerController1 : MonoBehaviour
     private float lastAbilityTime = -10f; // armazena o último tempo em que a habilidade foi acionada
     private bool stompActivated = false; // variável para rastrear se a habilidade de STOMP foi ativada
 
+    // Variáveis para detectar duplo clique
+    private float lastJumpTime = 0f;
+    private float doubleClickTime = 0.3f; // intervalo máximo entre cliques para ser considerado um duplo clique
 
+    // Variáveis para calcular a escala do AreaAttack
+    private float timeInAir = 0f;
+    public float scaleIncreasePerSecond = 1f; // valor para aumentar a escala por segundo no ar
 
     void Start()
     {
-        controller = GetComponent<CharacterController>(); // pega o controlador de personagem
-        MyCamera = Camera.main.transform; // pega a câmera principal
-        cameraOffset = MyCamera.position - transform.position; // calcula o offset inicial da câmera
-    }   
+        controller = GetComponent<CharacterController>();
+        MyCamera = Camera.main.transform;
+        cameraOffset = MyCamera.position - transform.position;
+    }
 
     void Update()
     {
@@ -63,22 +69,18 @@ public class PlayerController1 : MonoBehaviour
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
             gravity = jumpForce;
+            timeInAir = 0f; // reseta o tempo no ar ao pular
         }
 
-        // Nova feature: se o jogador pressionar a tecla E, ativa a habilidade se estiver em altura suficiente
-        if (Input.GetKeyDown(KeyCode.E) && Time.time >= lastAbilityTime + abilityCooldown)
+        // Verifica se o jogador pressionou o botão de pulo duas vezes rapidamente
+        if (Input.GetButtonDown("Jump"))
         {
-            if (transform.position.y >= abilityActivationHeight)
+            if (Time.time - lastJumpTime < doubleClickTime)
             {
-                gravity = extraGravityForce;
-                lastAbilityTime = Time.time;
-                stompActivated = true; // marca que a habilidade de STOMP foi ativada
-                Debug.Log("Habilidade ativada: aumentando a gravidade!");
+                // Ativa a habilidade de STOMP se o jogador pressionar o botão de pulo duas vezes rapidamente
+                ActivateStompAbility();
             }
-            else
-            {
-                Debug.Log("Altura insuficiente para ativar a habilidade.");
-            }
+            lastJumpTime = Time.time;
         }
 
         // Atualiza a gravidade: aplica aceleração para simular efeito de queda
@@ -88,20 +90,43 @@ public class PlayerController1 : MonoBehaviour
         }
         controller.Move(new Vector3(0, gravity, 0) * Time.deltaTime);
 
+        // Atualiza o tempo no ar se o personagem não estiver no chão
+        if (!isGrounded)
+        {
+            timeInAir += Time.deltaTime;
+        }
+
         // Atualiza a posição da câmera para seguir o jogador
         Vector3 newCameraPosition = transform.position + cameraOffset;
-        newCameraPosition.y = transform.position.y + cameraOffset.y;
         MyCamera.position = newCameraPosition;
     }
 
+    void ActivateStompAbility()
+    {
+        if (Time.time - lastAbilityTime >= abilityCooldown)
+        {
+            // Ativa a habilidade de STOMP
+            stompActivated = true;
+            lastAbilityTime = Time.time;
+
+            // Adiciona a força extra da gravidade
+            gravity = extraGravityForce;
+        }
+    }
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
         // Verifica se o jogador colidiu com o chão após usar a habilidade de STOMP
         if (stompActivated && ((1 << hit.gameObject.layer) & colisaoLayer) != 0)
         {
-            Vector3 areaAttackPosition = new Vector3(transform.position.x, foot.position.y, transform.position.z);
-            Instantiate(AreaAttack, areaAttackPosition, Quaternion.identity); // cria o objeto AreaAttack na posição do pé
+            // Calcula a nova escala do AreaAttack com base no tempo no ar
+            float newScale = 1f + (timeInAir * scaleIncreasePerSecond);
+            Vector3 areaAttackScale = new Vector3(newScale, newScale, newScale);
+
+            // Instancia a área de ataque na posição do foot com a nova escala
+            GameObject areaAttackInstance = Instantiate(AreaAttack, foot.position, Quaternion.identity);
+            areaAttackInstance.transform.localScale = areaAttackScale;
+
             stompActivated = false; // reseta a variável stompActivated
         }
 
