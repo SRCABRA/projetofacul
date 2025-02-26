@@ -5,23 +5,23 @@ public class LifeController : MonoBehaviour
 {
     public int pizzabox = 3;
     public GameObject Player;
-    public GameObject newObjectPrefab; // Prefab do novo objeto a ser instanciado
+    public GameObject BoxPrefab; // Prefab do novo objeto a ser instanciado
     private bool isInvulnerable = false;
     public float invulnerabilityDuration = 1.0f; // Duração da invulnerabilidade em segundos
 
     void Start()
     {
-        // Inicialização, se necessário
+        
     }
 
     void Update()
     {
-        // Atualização por frame, se necessário
+        
     }
 
     public void TakeDamage()
     {
-        if (pizzabox > 0 && !isInvulnerable)
+        if (pizzabox > 0 && !isInvulnerable)   // Se ainda tiver caixas de pizza e não estiver invulnerável
         {
             // Decrementa o número de caixas de pizza
             pizzabox--;
@@ -38,7 +38,7 @@ public class LifeController : MonoBehaviour
             }
 
             // Instancia um novo objeto
-            Instantiate(newObjectPrefab, Player.transform.position, Quaternion.identity);
+            Instantiate(BoxPrefab, Player.transform.position, Quaternion.identity);
 
             // Ativa a invulnerabilidade
             StartCoroutine(InvulnerabilityCoroutine());
@@ -55,6 +55,7 @@ public class LifeController : MonoBehaviour
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Enemy"))
+
         {
             TakeDamage();
         }

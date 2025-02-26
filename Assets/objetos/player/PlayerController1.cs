@@ -65,8 +65,8 @@ public class PlayerController1 : MonoBehaviour
         // Verifica se o personagem está no chão
         isGrounded = Physics.CheckSphere(foot.position, 0.3f, colisaoLayer);
 
-        // Código de pulo: se o personagem estiver no chão e o botão de pulo for pressionado
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        //código do pulo
+        if (Input.GetButtonDown("Jump") && isGrounded)//se o personagem estiver no chão e o botão de pulo for pressionado
         {
             gravity = jumpForce;
             timeInAir = 0f; // reseta o tempo no ar ao pular
