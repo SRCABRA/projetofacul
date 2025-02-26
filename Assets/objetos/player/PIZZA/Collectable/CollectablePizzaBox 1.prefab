@@ -119,6 +119,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rotationSpeed: 50
-  floatAmplitude: 0.5
+  floatAmplitude: 0.2
   floatFrequency: 0.7
-  baseHeight: 3.5
+  baseHeight: 3
