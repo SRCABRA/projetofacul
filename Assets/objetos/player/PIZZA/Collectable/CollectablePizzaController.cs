@@ -7,7 +7,9 @@ public class CollectablePizzaController : MonoBehaviour
     public float rotationSpeed = 50f; // rotação do objeto
     public float floatAmplitude = 0.5f; // amplitude do movimento de flutuação
     public float floatFrequency = 1f; // frequência do movimento de flutuação
-    public float baseHeight = 1f; // altura base da flutuação
+    public float floatOffset = 1f; // offset para aumentar a altura da flutuação
+
+    public float timeToDestroy = 5.0f; // tempo para destruir o objeto
 
     private Vector3 startPosition;
 
@@ -15,6 +17,7 @@ public class CollectablePizzaController : MonoBehaviour
     void Start()
     {
         startPosition = transform.position;
+        Destroy(gameObject, timeToDestroy);
     }
 
     // Update is called once per frame
@@ -24,7 +27,7 @@ public class CollectablePizzaController : MonoBehaviour
         transform.Rotate(Vector3.up, rotationSpeed * Time.deltaTime);
 
         // Float the object up and down
-        float newY = baseHeight + Mathf.Sin(Time.time * floatFrequency) * floatAmplitude;
+        float newY = startPosition.y + Mathf.Sin(Time.time * floatFrequency) * floatAmplitude + floatOffset;
         transform.position = new Vector3(startPosition.x, newY, startPosition.z);
     }
 }

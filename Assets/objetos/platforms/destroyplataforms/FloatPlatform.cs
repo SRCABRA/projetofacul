@@ -20,7 +20,7 @@ public class FloatPlatform : MonoBehaviour
     void Update()
     {
         // Float the platform up and down
-        float newY = baseHeight + Mathf.Sin(Time.time * floatFrequency) * floatAmplitude;
+        float newY = startPosition.y + Mathf.Sin(Time.time * floatFrequency) * floatAmplitude;
         transform.position = new Vector3(startPosition.x, newY, startPosition.z);
     }
 }

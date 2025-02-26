@@ -8,6 +8,8 @@ public class LifeController : MonoBehaviour
     public GameObject BoxPrefab; // Prefab do novo objeto a ser instanciado
     private bool isInvulnerable = false;
     public float invulnerabilityDuration = 1.0f; // Duração da invulnerabilidade em segundos
+    // Adicione uma variável para contar o número de BoxPrefab instanciados
+    private int boxPrefabCount = 0;
 
     void Start()
     {
@@ -19,45 +21,93 @@ public class LifeController : MonoBehaviour
         
     }
 
-    public void TakeDamage()
+    void OnCollisionEnter(Collision collision)
     {
-        if (pizzabox > 0 && !isInvulnerable)   // Se ainda tiver caixas de pizza e não estiver invulnerável
+        if (collision.gameObject.CompareTag("Enemy") && !isInvulnerable)
         {
-            // Decrementa o número de caixas de pizza
-            pizzabox--;
+            LosePizzaBox();
+        }
+        else if (collision.gameObject.CompareTag("BoxPizzaPrefab"))
+        {
+            GainPizzaBox(collision.gameObject);
+        }
+    }
 
-            // Encontra todas as caixas de pizza
-            foreach (Transform child in Player.transform)
+    void LosePizzaBox()
+    {
+        if (pizzabox > 0)
+        {
+            pizzabox--;
+            // Torna uma das caixas de pizza invisível
+            Transform[] pizzaBoxes = Player.GetComponentsInChildren<Transform>(true);
+            foreach (Transform box in pizzaBoxes)
             {
-                if (child.CompareTag("PizzaBox"))
+                if (box.CompareTag("PizzaBox") && box.gameObject.activeSelf)
                 {
-                    // Deleta a caixa de pizza
-                    Destroy(child.gameObject);
+                    box.gameObject.SetActive(false);
                     break;
                 }
             }
 
-            // Instancia um novo objeto
-            Instantiate(BoxPrefab, Player.transform.position, Quaternion.identity);
+            // Verifica se o número de BoxPrefab instanciados é menor que 3
+            if (boxPrefabCount < 3)
+            {
+                // Instancia um novo objeto BoxPrefab
+                Instantiate(BoxPrefab, Player.transform.position, Quaternion.identity);
+                boxPrefabCount++;
+            }
 
             // Ativa a invulnerabilidade
             StartCoroutine(InvulnerabilityCoroutine());
         }
     }
 
-    private IEnumerator InvulnerabilityCoroutine()
+    void GainPizzaBox(GameObject boxPizzaPrefab)
+    {
+        // Verifica se o número de caixas de pizza visíveis é menor que 3
+        Transform[] pizzaBoxes = Player.GetComponentsInChildren<Transform>(true);
+        int visiblePizzaBoxes = 0;
+        foreach (Transform box in pizzaBoxes)
+        {
+            if (box.CompareTag("PizzaBox") && box.gameObject.activeSelf)
+            {
+                visiblePizzaBoxes++;
+            }
+        }
+
+        if (visiblePizzaBoxes < 3)
+        {
+            // Destrói o objeto BoxPizzaPrefab
+            Destroy(boxPizzaPrefab);
+            boxPrefabCount--;
+
+            // Torna uma das caixas de pizza invisíveis visível
+            bool boxActivated = false;
+            foreach (Transform box in pizzaBoxes)
+            {
+                if (box.CompareTag("PizzaBox") && !box.gameObject.activeSelf)
+                {
+                    box.gameObject.SetActive(true);
+                    boxActivated = true;
+                    break;
+                }
+            }
+
+            // Incrementa o contador de caixas de pizza apenas se uma caixa foi ativada
+            if (boxActivated)
+            {
+                visiblePizzaBoxes++;
+            }
+        }
+
+        // Atualiza o contador global de caixas de pizza visíveis
+        pizzabox = visiblePizzaBoxes;
+    }
+
+    IEnumerator InvulnerabilityCoroutine()
     {
         isInvulnerable = true;
         yield return new WaitForSeconds(invulnerabilityDuration);
         isInvulnerable = false;
-    }
-
-    void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Enemy"))
-
-        {
-            TakeDamage();
-        }
     }
 }
