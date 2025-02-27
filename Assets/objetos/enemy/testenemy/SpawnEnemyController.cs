@@ -5,7 +5,7 @@ using UnityEngine;
 public class SpawnEnemyController : MonoBehaviour
 {
     public GameObject enemyPrefab;
-    public float spawnTime = 3f;
+    public float spawnTime = 1f;
 
     void Start()
     {

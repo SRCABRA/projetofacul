@@ -181,8 +181,8 @@ MonoBehaviour:
   player: {fileID: 8858947744672327354, guid: 5b65f6ceec18e52408b819782b6f2b05, type: 3}
   target: {fileID: 1681323430697203696, guid: 233f50d8ac2b4e64483dbab2322f70af, type: 3}
   life: 4
-  speed: 3.5
-  viewDistance: 50
+  speed: 7
+  viewDistance: 200
   danobulletbase: 1
   danoAreaAttack: 10
   pizzaBoxPrefab: {fileID: 1589319413836369823, guid: 8d30b3cf2cc684642b1e65e3ee1eebcb, type: 3}
