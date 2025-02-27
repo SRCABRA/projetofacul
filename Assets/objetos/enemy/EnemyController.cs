@@ -3,55 +3,86 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    public Transform player;
-    public float life = 3f;
-    public float speed = 5f;
-    public float viewDistance = 40f;	
+    public Transform player; // Alvo do inimigo
+    public Transform target; // Alvo do inimigo
+    public float life = 3f; // Vida do inimigo
+    public float speed = 5f; // Velocidade do inimigo
+    public float viewDistance = 40f; // Distância máxima para identificar um alvo
 
-    public float danobulletbase = 1f;
-    public float danoAreaAttack = 3f;  
+    public float danobulletbase = 1f; //dano base do tiro
+    public float danoAreaAttack = 3f;  //dano do ataque de area
 
     void Start()
     {
-        
+        ChooseTarget(); // Escolhe um alvo para o inimigo
     }
 
     // Update is called once per frame
     void Update()
     {
-        FindClosestPlayer();
-        MoveTowardsPlayer();
+        ChooseTarget();
+
+        MoveTowardsTarget();
 
         if (life <= 0){
-                Destroy(gameObject);
+            Destroy(gameObject);
+        }
+    }
+
+    void ChooseTarget()
+    {
+        FindClosestObject();
+
+        if (target == null)
+        {
+            FindClosestPlayer();
         }
     }
 
     void FindClosestPlayer()
     {
-        GameObject[] players = GameObject.FindGameObjectsWithTag("Player"); // Busca todos os jogadores na cena
-        float closestDistance = Mathf.Infinity; // Define a menor distância como infinito
-        Transform closestPlayer = null; // Define o jogador mais próximo como nulo
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+        float closestDistance = Mathf.Infinity;
+        Transform closestPlayer = null;
 
-        foreach (GameObject p in players)  // Para cada jogador na cena
+        foreach (GameObject p in players)
         {
-            float distance = Vector3.Distance(transform.position, p.transform.position); // Calcula a distância entre o inimigo e o jogador
-            if (distance < closestDistance && distance < viewDistance) // Se a distância for menor que a menor distância atual e menor que a distância de visão
+            float distance = Vector3.Distance(transform.position, p.transform.position);
+            if (distance < closestDistance && distance < viewDistance)
             {
                 closestDistance = distance;
                 closestPlayer = p.transform;
             }
         }
 
-        player = closestPlayer;
+        target = closestPlayer;
     }
 
-    void MoveTowardsPlayer()
+    void FindClosestObject()
     {
-        if (player != null)
+        GameObject[] objects = GameObject.FindGameObjectsWithTag("BoxPizzaPrefab");
+        float closestDistance = Mathf.Infinity;
+        Transform closestObject = null;
+
+        foreach (GameObject obj in objects)
         {
-            Vector3 direction = (player.position - transform.position).normalized;
-            direction.y = 0; // Ignora a componente y
+            float distance = Vector3.Distance(transform.position, obj.transform.position);
+            if (distance < closestDistance && distance < viewDistance)
+            {
+                closestDistance = distance;
+                closestObject = obj.transform;
+            }
+        }
+
+        target = closestObject;
+    }
+
+    void MoveTowardsTarget()
+    {
+        if (target != null)
+        {
+            Vector3 direction = (target.position - transform.position).normalized;
+            direction.y = 0;
             transform.position += direction * speed * Time.deltaTime;
         }
     }
@@ -64,6 +95,5 @@ public class EnemyController : MonoBehaviour
         if(collision.gameObject.CompareTag("AreaAttack")){
             life -= danoAreaAttack;
         }
-
     }
 }

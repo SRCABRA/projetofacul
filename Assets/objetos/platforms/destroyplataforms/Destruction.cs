@@ -31,45 +31,15 @@ public class Destruction : MonoBehaviour {
     private List<PieceInfo> pieces = new List<PieceInfo>(); // Lista de informações das peças
 
     // Método chamado no início
+// Método chamado no início
     private void Start() {
-        // Itera sobre todos os filhos do transform e adiciona suas informações na lista
+    // Itera sobre todos os filhos do transform e adiciona suas informações na lista
         for (int i = 0; i < transform.childCount; i++) {
-            Transform child = transform.GetChild(i);
-            Rigidbody rb = child.GetComponent<Rigidbody>();
-            if (rb != null) {
-                pieces.Add(new PieceInfo(child.position, child.rotation, child, rb));
-            }
-        }
+            Transform t = transform.GetChild(i);
+            PieceInfo info = new PieceInfo(t.position, t.rotation, t, t.gameObject.GetComponent<Rigidbody>());
+            pieces.Add(info);
     }
-
-    // Método para destruir as peças
-    public void DestroyPieces() {
-        StartCoroutine(DestroyPiecesCoroutine());
-    }
-
-    private IEnumerator DestroyPiecesCoroutine() {
-        yield return new WaitForSeconds(waitTime);
-
-        foreach (PieceInfo piece in pieces) {
-            piece.rigidbody.isKinematic = false;
-            piece.rigidbody.AddForce(Vector3.up * UnityEngine.Random.Range(minForce, maxForce), ForceMode.Impulse);
-        }
-
-        yield return new WaitForSeconds(respawnTime);
-
-        RespawnPieces();
-    }
-
-    // Método para respawn das peças
-    private void RespawnPieces() {
-        foreach (PieceInfo piece in pieces) {
-            piece.transform.position = piece.startPosition;
-            piece.transform.rotation = piece.startRotation;
-            piece.rigidbody.isKinematic = true;
-        }
-
-        Debug.Log("Peças respawnadas");
-    }
+}
 
     // Método chamado quando há colisão com um trigger
     private void OnTriggerEnter(Collider other) {
