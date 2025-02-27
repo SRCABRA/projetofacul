@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class DropedPizzaController : MonoBehaviour
 {
-    public float timer = 1f;
     public GameObject pizzacollectible;
 
     void Start()
@@ -15,14 +14,14 @@ public class DropedPizzaController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(timer <= 0)
-        {
+
+    }
+
+    void OnCollisionEnter(Collision collision) // Changed method name to OnCollisionEnter
+    {
+        if(collision.gameObject.CompareTag("chao")){ // se colidir com algo que não seja o player ou inimigo
             Instantiate(pizzacollectible, transform.position, transform.rotation); // instancia a pizza coletável
             Destroy(gameObject); // destroi a pizza dropada
-        }
-        else
-        {
-            timer -= Time.deltaTime;
         }
     }
 }
