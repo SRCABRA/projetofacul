@@ -5,20 +5,21 @@ public class LifeController : MonoBehaviour
 {
     public int pizzabox = 3;
     public GameObject Player;
-    public GameObject BoxPrefab; // Prefab do novo objeto a ser instanciado
+    public GameObject BoxPrefab; // Prefab da caixa de pizza, objeto a ser instanciado
     private bool isInvulnerable = false;
     public float invulnerabilityDuration = 1.0f; // Duração da invulnerabilidade em segundos
-    // Adicione uma variável para contar o número de BoxPrefab instanciados
-    private int boxPrefabCount = 0;
+    private int boxPrefabCount = 0; // Contador de BoxPrefab instanciados
 
     void Start()
     {
-        
+        // Inicializa o contador de BoxPrefab na cena
+        boxPrefabCount = GameObject.FindGameObjectsWithTag("BoxPizzaPrefab").Length;
     }
 
     void Update()
     {
-        
+        // Atualiza o contador de BoxPrefab na cena
+        boxPrefabCount = GameObject.FindGameObjectsWithTag("BoxPizzaPrefab").Length;
     }
 
     void OnCollisionEnter(Collision collision)
@@ -42,66 +43,43 @@ public class LifeController : MonoBehaviour
             Transform[] pizzaBoxes = Player.GetComponentsInChildren<Transform>(true);
             foreach (Transform box in pizzaBoxes)
             {
-                if (box.CompareTag("PizzaBox") && box.gameObject.activeSelf)
+                if (box.gameObject.CompareTag("PizzaBox") && box.gameObject.activeSelf)
                 {
                     box.gameObject.SetActive(false);
                     break;
                 }
             }
 
-            // Verifica se o número de BoxPrefab instanciados é menor que 3
-            if (boxPrefabCount < 3)
+            // Instancia uma BoxPrefab na cena
+            if (boxPrefabCount < 3 - pizzabox)
             {
-                // Instancia um novo objeto BoxPrefab
                 Instantiate(BoxPrefab, Player.transform.position, Quaternion.identity);
                 boxPrefabCount++;
             }
 
-            // Ativa a invulnerabilidade
             StartCoroutine(InvulnerabilityCoroutine());
         }
     }
 
     void GainPizzaBox(GameObject boxPizzaPrefab)
     {
-        // Verifica se o número de caixas de pizza visíveis é menor que 3
-        Transform[] pizzaBoxes = Player.GetComponentsInChildren<Transform>(true);
-        int visiblePizzaBoxes = 0;
-        foreach (Transform box in pizzaBoxes)
+        if (pizzabox < 3)
         {
-            if (box.CompareTag("PizzaBox") && box.gameObject.activeSelf)
-            {
-                visiblePizzaBoxes++;
-            }
-        }
-
-        if (visiblePizzaBoxes < 3)
-        {
-            // Destrói o objeto BoxPizzaPrefab
-            Destroy(boxPizzaPrefab);
-            boxPrefabCount--;
-
-            // Torna uma das caixas de pizza invisíveis visível
-            bool boxActivated = false;
+            pizzabox++;
+            // Torna uma das caixas de pizza visível
+            Transform[] pizzaBoxes = Player.GetComponentsInChildren<Transform>(true);
             foreach (Transform box in pizzaBoxes)
             {
-                if (box.CompareTag("PizzaBox") && !box.gameObject.activeSelf)
+                if (box.gameObject.CompareTag("PizzaBox") && !box.gameObject.activeSelf)
                 {
                     box.gameObject.SetActive(true);
-                    boxActivated = true;
                     break;
                 }
             }
 
-            // Incrementa o contador de caixas de pizza apenas se uma caixa foi ativada
-            if (boxActivated)
-            {
-                visiblePizzaBoxes++;
-            }
+            Destroy(boxPizzaPrefab);
+            boxPrefabCount--;
         }
-
-        // Atualiza o contador global de caixas de pizza visíveis
-        pizzabox = visiblePizzaBoxes;
     }
 
     IEnumerator InvulnerabilityCoroutine()

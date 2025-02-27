@@ -11,6 +11,9 @@ public class EnemyController : MonoBehaviour
 
     public float danobulletbase = 1f; //dano base do tiro
     public float danoAreaAttack = 3f;  //dano do ataque de area
+    public GameObject pizzaBoxPrefab; // Prefab da caixa de pizza
+
+    private GameObject carriedPizzaBox; // Referência da caixa de pizza carregada
 
     void Start()
     {
@@ -21,11 +24,47 @@ public class EnemyController : MonoBehaviour
     void Update()
     {
         ChooseTarget();
-
         MoveTowardsTarget();
 
-        if (life <= 0){
+        if (life <= 0)
+        {
+            DropPizzaBox();
             Destroy(gameObject);
+        }
+
+        if (carriedPizzaBox != null)
+        {
+            // Manter a caixa de pizza na cabeça do inimigo
+            carriedPizzaBox.transform.position = transform.position + Vector3.up * 2;
+        }
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Bullet")){
+            life -= danobulletbase;
+        }
+        if(collision.gameObject.CompareTag("AreaAttack")){
+            life -= danoAreaAttack;
+        }
+        if (collision.gameObject.CompareTag("BoxPizzaPrefab") && carriedPizzaBox == null)
+        {
+            // Destrua o BoxPizzaPrefab original
+            Destroy(collision.gameObject);
+
+            // Instancie uma nova caixa de pizza e anexe à cabeça do inimigo
+            carriedPizzaBox = Instantiate(pizzaBoxPrefab, transform.position + Vector3.up * 2, Quaternion.identity);
+            carriedPizzaBox.transform.SetParent(transform);
+        }
+    }
+
+    void DropPizzaBox()
+    {
+        if (carriedPizzaBox != null)
+        {
+            // Solte a caixa de pizza
+            carriedPizzaBox.transform.SetParent(null);
+            carriedPizzaBox = null;
         }
     }
 
@@ -84,16 +123,6 @@ public class EnemyController : MonoBehaviour
             Vector3 direction = (target.position - transform.position).normalized;
             direction.y = 0;
             transform.position += direction * speed * Time.deltaTime;
-        }
-    }
-
-    void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Bullet")){
-            life -= danobulletbase;
-        }
-        if(collision.gameObject.CompareTag("AreaAttack")){
-            life -= danoAreaAttack;
         }
     }
 }

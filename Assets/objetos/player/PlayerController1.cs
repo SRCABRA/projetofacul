@@ -93,7 +93,7 @@ public class PlayerController1 : MonoBehaviour
         // Atualiza o tempo no ar se o personagem não estiver no chão
         if (!isGrounded)
         {
-            timeInAir += Time.deltaTime;
+            timeInAir += 10 * Time.deltaTime;
         }
 
         // Atualiza a posição da câmera para seguir o jogador
