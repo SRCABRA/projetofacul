@@ -136,6 +136,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4a35fcb82081b84398dd2c2eeb65e7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetY: -2
+  animationDuration: 1
 --- !u!1 &83327281
 GameObject:
   m_ObjectHideFlags: 0
@@ -3308,6 +3310,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4a35fcb82081b84398dd2c2eeb65e7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetY: 0.51
+  animationDuration: 0.5
 --- !u!1 &1905110936
 GameObject:
   m_ObjectHideFlags: 0
@@ -13163,7 +13167,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 335509929382443825, guid: d9616e700e1d32d44b473db86619d9db, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.77
+      value: 0.51
       objectReference: {fileID: 0}
     - target: {fileID: 335509929382443825, guid: d9616e700e1d32d44b473db86619d9db, type: 3}
       propertyPath: m_LocalPosition.z
@@ -13205,6 +13209,30 @@ PrefabInstance:
       propertyPath: m_TagString
       value: chao
       objectReference: {fileID: 0}
+    - target: {fileID: 4839890806168696078, guid: d9616e700e1d32d44b473db86619d9db, type: 3}
+      propertyPath: m_Size.x
+      value: 0.93
+      objectReference: {fileID: 0}
+    - target: {fileID: 4839890806168696078, guid: d9616e700e1d32d44b473db86619d9db, type: 3}
+      propertyPath: m_Size.y
+      value: 0.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 4839890806168696078, guid: d9616e700e1d32d44b473db86619d9db, type: 3}
+      propertyPath: m_Size.z
+      value: 0.93
+      objectReference: {fileID: 0}
+    - target: {fileID: 4839890806168696078, guid: d9616e700e1d32d44b473db86619d9db, type: 3}
+      propertyPath: m_Center.y
+      value: -0.47
+      objectReference: {fileID: 0}
+    - target: {fileID: 4839890806168696078, guid: d9616e700e1d32d44b473db86619d9db, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4839890806168696078, guid: d9616e700e1d32d44b473db86619d9db, type: 3}
+      propertyPath: m_LayerOverridePriority
+      value: 10
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -13230,6 +13258,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4a35fcb82081b84398dd2c2eeb65e7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetY: -2
+  animationDuration: 1
 --- !u!1001 &2076785451
 PrefabInstance:
   m_ObjectHideFlags: 0
