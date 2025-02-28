@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6955887865512289427}
   - component: {fileID: 6299451364966200779}
   - component: {fileID: 7350735938077902870}
+  - component: {fileID: -1877847509034403525}
   m_Layer: 0
   m_Name: CaixaPizza
   m_TagString: PizzaBox
@@ -59,6 +60,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -105,3 +109,15 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.0000002, y: 1, z: 1.0000002}
   m_Center: {x: 3.6379792e-12, y: 0, z: 4.656614e-10}
+--- !u!114 &-1877847509034403525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5202318698516628829}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30669d9b5a290064a9d57b2b6d55deb5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

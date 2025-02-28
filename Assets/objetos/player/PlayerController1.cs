@@ -1,3 +1,4 @@
+using System;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -22,8 +23,8 @@ public class PlayerController1 : MonoBehaviour
 
     // Variáveis do STOMP
     public float abilityActivationHeight = 5.0f; // altura mínima para ativar a habilidade
-    public float extraGravityForce = -30f; // força extra para simular aumento da gravidade
-    public float abilityCooldown = 2f; // tempo de recarga da habilidade
+    public float extraGravityForce = -20f; // força extra para simular aumento da gravidade
+    public float abilityCooldown = 5f; // tempo de recarga da habilidade
 
     public GameObject AreaAttack; // prefab da área de ataque
     private float lastAbilityTime = -10f; // armazena o último tempo em que a habilidade foi acionada
@@ -35,7 +36,7 @@ public class PlayerController1 : MonoBehaviour
 
     // Variáveis para calcular a escala do AreaAttack
     private float timeInAir = 0f;
-    public float scaleIncreasePerSecond = 1f; // valor para aumentar a escala por segundo no ar
+    public float scaleIncreasePerSecond = 0.1f; // valor para aumentar a escala por segundo no ar
 
     void Start()
     {
@@ -134,6 +135,16 @@ public class PlayerController1 : MonoBehaviour
         if (hit.gameObject.CompareTag("Enemy"))
         {
             Debug.Log("Player colidiu com inimigo!");
+        }
+    }
+
+    void DropPizzaBox(GameObject pizzaBox)
+    {
+        Rigidbody pizzaBoxRigidbody = pizzaBox.GetComponent<Rigidbody>();
+        if (pizzaBoxRigidbody != null)
+        {
+            pizzaBoxRigidbody.linearVelocity = Vector3.zero; // Zera a velocidade atual
+            pizzaBoxRigidbody.AddForce(Vector3.up * 5f, ForceMode.Impulse); // Ajuste a força conforme necessário
         }
     }
 }

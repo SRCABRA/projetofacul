@@ -10,7 +10,7 @@ public class EnemyController : MonoBehaviour
     public float viewDistance = 40f; // Distância máxima para identificar um alvo
 
     public float danobulletbase = 1f; //dano base do tiro
-    public float danoAreaAttack = 3f;  //dano do ataque de area
+    public float danoAreaAttack = 10f;  //dano do ataque de area
     public GameObject pizzaBoxPrefab; // Prefab da caixa de pizza
 
     private GameObject carriedPizzaBox; // Referência da caixa de pizza carregada
@@ -31,39 +31,43 @@ public class EnemyController : MonoBehaviour
             DropPizzaBox();
             Destroy(gameObject);
         }
-
-        if (carriedPizzaBox != null)
-        {
-            // Manter a caixa de pizza na cabeça do inimigo
-            carriedPizzaBox.transform.position = transform.position + Vector3.up * 2;
-        }
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Bullet")){
-            life -= danobulletbase;
-        }
-        if(collision.gameObject.CompareTag("AreaAttack")){
+        if (collision.gameObject.CompareTag("AreaAttack"))
+        {
             life -= danoAreaAttack;
         }
-        if (collision.gameObject.CompareTag("BoxPizzaPrefab") && carriedPizzaBox == null)
+        if (collision.gameObject.CompareTag("PizzaBox") && collision.transform.parent != player)
         {
-            // Destrua o BoxPizzaPrefab original
-            Destroy(collision.gameObject);
-
-            // Instancie uma nova caixa de pizza e anexe à cabeça do inimigo
-            carriedPizzaBox = Instantiate(pizzaBoxPrefab, transform.position + Vector3.up * 2, Quaternion.identity);
-            carriedPizzaBox.transform.SetParent(transform);
+            Rigidbody pizzaBoxRigidbody = collision.gameObject.GetComponent<Rigidbody>();
+            if (pizzaBoxRigidbody != null && Mathf.Abs(pizzaBoxRigidbody.linearVelocity.x) < 0.01f)
+            {
+                PickUpPizzaBox(collision.gameObject);
+            }
         }
+    }
+
+    void PickUpPizzaBox(GameObject pizzaBox)
+    {
+        carriedPizzaBox = pizzaBox;
+        carriedPizzaBox.transform.SetParent(transform);
+        carriedPizzaBox.transform.localPosition = new Vector3(0, 1, 0); // Ajuste a posição conforme necessário
+        carriedPizzaBox.transform.localRotation = Quaternion.identity; // Reseta a rotação
     }
 
     void DropPizzaBox()
     {
         if (carriedPizzaBox != null)
         {
-            // Solte a caixa de pizza
             carriedPizzaBox.transform.SetParent(null);
+            Rigidbody pizzaBoxRigidbody = carriedPizzaBox.GetComponent<Rigidbody>();
+            if (pizzaBoxRigidbody != null)
+            {
+                pizzaBoxRigidbody.linearVelocity = Vector3.zero; // Zera a velocidade atual
+                pizzaBoxRigidbody.AddForce(Vector3.up * 5f, ForceMode.Impulse); // Ajuste a força conforme necessário
+            }
             carriedPizzaBox = null;
         }
     }
@@ -99,7 +103,7 @@ public class EnemyController : MonoBehaviour
 
     void FindClosestObject()
     {
-        GameObject[] objects = GameObject.FindGameObjectsWithTag("BoxPizzaPrefab");
+        GameObject[] objects = GameObject.FindGameObjectsWithTag("PizzaBox");
         float closestDistance = Mathf.Infinity;
         Transform closestObject = null;
 
