@@ -9,9 +9,11 @@ public class EnemyController : MonoBehaviour
     public float speed = 5f; // Velocidade do inimigo
     public float viewDistance = 40f; // Distância máxima para identificar um alvo
 
-    public float danobulletbase = 1f; //dano base do tiro
+    public float danobulletbase = 4f; //dano base do tiro
     public float danoAreaAttack = 10f;  //dano do ataque de area
     public GameObject pizzaBoxPrefab; // Prefab da caixa de pizza
+    public GameObject consumable1Prefab; // Prefab do consumable1
+    public float consumable1DropChance = 0.5f; // Chance de drop do consumable1 (50%)
 
     private GameObject carriedPizzaBox; // Referência da caixa de pizza carregada
 
@@ -39,10 +41,14 @@ public class EnemyController : MonoBehaviour
         {
             life -= danoAreaAttack;
         }
-        if (collision.gameObject.CompareTag("PizzaBox") && collision.transform.parent != player)
+        else if (collision.gameObject.CompareTag("Bullet"))
+        {
+            life -= danobulletbase;
+        }
+        else if (collision.gameObject.CompareTag("PizzaBox") && collision.transform.parent != player)
         {
             Rigidbody pizzaBoxRigidbody = collision.gameObject.GetComponent<Rigidbody>();
-            if (pizzaBoxRigidbody != null && Mathf.Abs(pizzaBoxRigidbody.linearVelocity.x) < 0.01f)
+            if (pizzaBoxRigidbody != null && Mathf.Abs(pizzaBoxRigidbody.velocity.x) < 0.01f)  //mudar para linearVelocity na versão mais recente
             {
                 PickUpPizzaBox(collision.gameObject);
             }
@@ -65,10 +71,16 @@ public class EnemyController : MonoBehaviour
             Rigidbody pizzaBoxRigidbody = carriedPizzaBox.GetComponent<Rigidbody>();
             if (pizzaBoxRigidbody != null)
             {
-                pizzaBoxRigidbody.linearVelocity = Vector3.zero; // Zera a velocidade atual
+                pizzaBoxRigidbody.velocity = Vector3.zero; // Zera a velocidade atual
                 pizzaBoxRigidbody.AddForce(Vector3.up * 5f, ForceMode.Impulse); // Ajuste a força conforme necessário
             }
             carriedPizzaBox = null;
+        }
+
+        // Adiciona a lógica para dropar o consumable1
+        if (UnityEngine.Random.value <= consumable1DropChance)
+        {
+            Instantiate(consumable1Prefab, transform.position, Quaternion.identity);
         }
     }
 
@@ -130,3 +142,4 @@ public class EnemyController : MonoBehaviour
         }
     }
 }
+

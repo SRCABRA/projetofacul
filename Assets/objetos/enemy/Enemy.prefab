@@ -115,9 +115,6 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -183,9 +180,11 @@ MonoBehaviour:
   life: 4
   speed: 7
   viewDistance: 200
-  danobulletbase: 1
+  danobulletbase: 2
   danoAreaAttack: 10
   pizzaBoxPrefab: {fileID: 1589319413836369823, guid: 8d30b3cf2cc684642b1e65e3ee1eebcb, type: 3}
+  consumable1Prefab: {fileID: 534128245748221230, guid: 72f8fe7bbf06f9b4ca3c0159a474b33b, type: 3}
+  consumable1DropChance: 0.5
 --- !u!54 &7561143976102276269
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -38,15 +38,28 @@ public class PlayerController1 : MonoBehaviour
     private float timeInAir = 0f;
     public float scaleIncreasePerSecond = 0.1f; // valor para aumentar a escala por segundo no ar
 
+    public float speedBuffDuration = 5f; // Duração do buff de velocidade
+    private float originalSpeed; // Para armazenar a velocidade original
+    private bool isSpeedBuffActive = false; // Para rastrear se o buff de velocidade está ativo
+    private float speedBuffEndTime; // Para armazenar o tempo de término do buff de velocidade
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
         MyCamera = Camera.main.transform;
         cameraOffset = MyCamera.position - transform.position;
+        originalSpeed = speed; // Armazena a velocidade original
     }
 
     void Update()
     {
+        // Verifica se o buff de velocidade está ativo e se o tempo do buff terminou
+        if (isSpeedBuffActive && Time.time >= speedBuffEndTime)
+        {
+            speed = originalSpeed; // Restaura a velocidade original
+            isSpeedBuffActive = false; // Desativa o buff de velocidade
+        }
+
         // Captura inputs de movimentação e calcula a direção relativa à câmera
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
@@ -143,8 +156,30 @@ public class PlayerController1 : MonoBehaviour
         Rigidbody pizzaBoxRigidbody = pizzaBox.GetComponent<Rigidbody>();
         if (pizzaBoxRigidbody != null)
         {
-            pizzaBoxRigidbody.linearVelocity = Vector3.zero; // Zera a velocidade atual
+            pizzaBoxRigidbody.velocity = Vector3.zero; // Zera a velocidade atual //mudar para linearVelocity na versão mais recente
             pizzaBoxRigidbody.AddForce(Vector3.up * 5f, ForceMode.Impulse); // Ajuste a força conforme necessário
         }
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("consumable1"))
+        {
+            Destroy(other.gameObject); // Destroi o consumable
+            ApplySpeedBuff(); // Aplica o buff de velocidade
+            Debug.Log("consumable1 coletado!");
+        }
+    }
+
+
+
+
+
+
+    void ApplySpeedBuff()
+    {
+        speed += 2.0f; // Aumenta a velocidade
+        isSpeedBuffActive = true; // Ativa o buff de velocidade
+        speedBuffEndTime = Time.time + speedBuffDuration; // Define o tempo de término do buff
     }
 }
