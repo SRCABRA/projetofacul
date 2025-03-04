@@ -1,42 +1,46 @@
-using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class MovePlatformController : MonoBehaviour
 {
-    public float targetY = -2f;          // altura exata de destino
-    public float animationDuration = 1f;   // duração da animação
-    private Vector3 originalPosition;
-    private bool hasMoved = false;
+    // Referência para o transform do cubo cujo eixo Y será copiado.
+    public Transform targetCube;
+    
+    // Duração da transição suave.
+    public float transitionDuration = 1.0f;
+    
+    // Flag para garantir que o código seja executado apenas uma vez.
+    private bool hasExecuted = false;
 
-    void Start()
+    // Método chamado quando outro collider entra em contato com este objeto. 
+    // Este objeto deve ter o Box Collider com "Is Trigger" marcado para que este evento seja disparado.
+    private void OnTriggerEnter(Collider other)
     {
-        originalPosition = transform.position;
+        // Executa se o código ainda não foi executado e se o objeto colidido possui a tag "Player".
+        if (!hasExecuted && other.CompareTag("Player"))
+        {
+            hasExecuted = true;
+            StartCoroutine(SmoothTransition());
+        }
     }
 
-    // Certifique-se de que o collider está marcado como Trigger.
-    void OnCollisionEnter(Collision other)
+    // Coroutine para fazer uma transição suave (descida) do objeto.
+    private IEnumerator SmoothTransition()
     {
-        if (other.gameObject.CompareTag("Player") && !hasMoved || other.gameObject.CompareTag("Enemy") && !hasMoved)
+        Vector3 startPos = transform.position;
+        float targetY = targetCube.position.y;
+        Vector3 targetPos = new Vector3(startPos.x, targetY, startPos.z);
+        float elapsedTime = 0;
+
+        while (elapsedTime < transitionDuration)
         {
-            StartCoroutine(MovePlatformDownCoroutine());
+            transform.position = Vector3.Lerp(startPos, targetPos, elapsedTime / transitionDuration);
+            elapsedTime += Time.deltaTime;
+            yield return null;
         }
 
-    }
-
-    //fazer ele descer e subir
-
-    IEnumerator MovePlatformDownCoroutine()
-    {
-            Vector3 targetPos = new Vector3(originalPosition.x, targetY, originalPosition.z);
-            // Calcula a velocidade necessária para alcançar a altura em animationDuration
-            float speed = Mathf.Abs(originalPosition.y - targetY) / animationDuration;
-
-            while (Vector3.Distance(transform.position, targetPos) > 0.001f)
-            {
-                transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
-                yield return null;
-            }
-            transform.position = targetPos; // Garante que a posição final seja exatamente targetPos
-            hasMoved = true;    
+        // Garante que o objeto atinja exatamente a posição final.
+        transform.position = targetPos;
     }
 }
