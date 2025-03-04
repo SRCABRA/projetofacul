@@ -13,7 +13,11 @@ public class EnemyController : MonoBehaviour
     public float danoAreaAttack = 10f;  //dano do ataque de area
     public GameObject pizzaBoxPrefab; // Prefab da caixa de pizza
     public GameObject consumable1Prefab; // Prefab do consumable1
-    public float consumable1DropChance = 0.5f; // Chance de drop do consumable1 (50%)
+
+    public GameObject  consumable2Prefab; // Prefab do consumable2
+    public float consumable1DropChance = 0.0f; // Chance de drop do consumable1 (50%)
+
+    public float consumable2DropChance = 1f; // Chance de drop do consumable2 (50%)
 
     private GameObject carriedPizzaBox; // Referência da caixa de pizza carregada
 
@@ -30,7 +34,7 @@ public class EnemyController : MonoBehaviour
 
         if (life <= 0)
         {
-            DropPizzaBox();
+            Drop();
             Destroy(gameObject);
         }
     }
@@ -48,7 +52,7 @@ public class EnemyController : MonoBehaviour
         else if (collision.gameObject.CompareTag("PizzaBox") && collision.transform.parent != player)
         {
             Rigidbody pizzaBoxRigidbody = collision.gameObject.GetComponent<Rigidbody>();
-            if (pizzaBoxRigidbody != null && Mathf.Abs(pizzaBoxRigidbody.velocity.x) < 0.01f)  //mudar para linearVelocity na versão mais recente
+            if (pizzaBoxRigidbody != null && Mathf.Abs(pizzaBoxRigidbody.linearVelocity.x) < 0.01f)  //mudar para linearVelocity na versão mais recente
             {
                 PickUpPizzaBox(collision.gameObject);
             }
@@ -63,7 +67,7 @@ public class EnemyController : MonoBehaviour
         carriedPizzaBox.transform.localRotation = Quaternion.identity; // Reseta a rotação
     }
 
-    void DropPizzaBox()
+    void Drop()
     {
         if (carriedPizzaBox != null)
         {
@@ -71,7 +75,7 @@ public class EnemyController : MonoBehaviour
             Rigidbody pizzaBoxRigidbody = carriedPizzaBox.GetComponent<Rigidbody>();
             if (pizzaBoxRigidbody != null)
             {
-                pizzaBoxRigidbody.velocity = Vector3.zero; // Zera a velocidade atual
+                pizzaBoxRigidbody.linearVelocity = Vector3.zero; // Zera a velocidade atual
                 pizzaBoxRigidbody.AddForce(Vector3.up * 5f, ForceMode.Impulse); // Ajuste a força conforme necessário
             }
             carriedPizzaBox = null;
@@ -82,6 +86,12 @@ public class EnemyController : MonoBehaviour
         {
             Instantiate(consumable1Prefab, transform.position, Quaternion.identity);
         }
+
+        if (UnityEngine.Random.value <= consumable2DropChance)
+        {
+            Instantiate(consumable2Prefab, transform.position, Quaternion.identity);
+        }
+
     }
 
     void ChooseTarget()
