@@ -21,12 +21,13 @@ public class PlayerController1 : MonoBehaviour
     private CharacterController controller; // controlador de personagem            
     public Vector3 cameraOffset; // offset da câmera em relação ao jogador
 
-    // Variáveis do STOMP
+    // Variáveis do STOMP --------------------------------------------
     public float abilityActivationHeight = 5.0f; // altura mínima para ativar a habilidade
     public float extraGravityForce = -20f; // força extra para simular aumento da gravidade
     public float abilityCooldown = 5f; // tempo de recarga da habilidade
 
     public GameObject AreaAttack; // prefab da área de ataque
+
     private float lastAbilityTime = -10f; // armazena o último tempo em que a habilidade foi acionada
     private bool stompActivated = false; // variável para rastrear se a habilidade de STOMP foi ativada
 
@@ -38,8 +39,13 @@ public class PlayerController1 : MonoBehaviour
     private float timeInAir = 0f;
     public float scaleIncreasePerSecond = 0.1f; // valor para aumentar a escala por segundo no ar
 
+
+
+
+
     void Start()
     {
+        PlayerBuffs playerBuffs = GetComponent<PlayerBuffs>(); 
         controller = GetComponent<CharacterController>();
         MyCamera = Camera.main.transform;
         cameraOffset = MyCamera.position - transform.position;
@@ -47,6 +53,7 @@ public class PlayerController1 : MonoBehaviour
 
     void Update()
     {
+
         // Captura inputs de movimentação e calcula a direção relativa à câmera
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
@@ -58,8 +65,7 @@ public class PlayerController1 : MonoBehaviour
         controller.Move(position * speed * Time.deltaTime);
 
         // Rotaciona o personagem na direção do movimento
-        if (position != Vector3.zero)
-        {
+        if (position != Vector3.zero){
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(position), Time.deltaTime * 10);
         }
         
@@ -67,15 +73,13 @@ public class PlayerController1 : MonoBehaviour
         isGrounded = Physics.CheckSphere(foot.position, 0.3f, colisaoLayer);
 
         //código do pulo
-        if (Input.GetButtonDown("Jump") && isGrounded)//se o personagem estiver no chão e o botão de pulo for pressionado
-        {
+        if (Input.GetButtonDown("Jump") && isGrounded){//se o personagem estiver no chão e o botão de pulo for pressionado
             gravity = jumpForce;
             timeInAir = 0f; // reseta o tempo no ar ao pular
         }
 
         // Verifica se o jogador pressionou o botão de pulo duas vezes rapidamente
-        if (Input.GetButtonDown("Jump"))
-        {
+        if (Input.GetButtonDown("Jump")){
             if (Time.time - lastJumpTime < doubleClickTime)
             {
                 // Ativa a habilidade de STOMP se o jogador pressionar o botão de pulo duas vezes rapidamente
@@ -85,15 +89,13 @@ public class PlayerController1 : MonoBehaviour
         }
 
         // Atualiza a gravidade: aplica aceleração para simular efeito de queda
-        if (gravity > -10f)
-        {
+        if (gravity > -10f){
             gravity += -25f * Time.deltaTime;
         }
         controller.Move(new Vector3(0, gravity, 0) * Time.deltaTime);
 
         // Atualiza o tempo no ar se o personagem não estiver no chão
-        if (!isGrounded)
-        {
+        if (!isGrounded){
             timeInAir += 10 * Time.deltaTime;
         }
 
@@ -104,8 +106,7 @@ public class PlayerController1 : MonoBehaviour
 
     void ActivateStompAbility()
     {
-        if (Time.time - lastAbilityTime >= abilityCooldown)
-        {
+        if (Time.time - lastAbilityTime >= abilityCooldown){
             // Ativa a habilidade de STOMP
             stompActivated = true;
             lastAbilityTime = Time.time;
@@ -118,8 +119,7 @@ public class PlayerController1 : MonoBehaviour
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
         // Verifica se o jogador colidiu com o chão após usar a habilidade de STOMP
-        if (stompActivated && ((1 << hit.gameObject.layer) & colisaoLayer) != 0)
-        {
+        if (stompActivated && ((1 << hit.gameObject.layer) & colisaoLayer) != 0){
             // Calcula a nova escala do AreaAttack com base no tempo no ar
             float newScale = 1f + (timeInAir * scaleIncreasePerSecond);
             Vector3 areaAttackScale = new Vector3(newScale, newScale, newScale);
@@ -132,8 +132,7 @@ public class PlayerController1 : MonoBehaviour
         }
 
         // Verifica se o jogador colidiu com um inimigo
-        if (hit.gameObject.CompareTag("Enemy"))
-        {
+        if (hit.gameObject.CompareTag("Enemy")){
             Debug.Log("Player colidiu com inimigo!");
         }
     }
@@ -141,10 +140,50 @@ public class PlayerController1 : MonoBehaviour
     void DropPizzaBox(GameObject pizzaBox)
     {
         Rigidbody pizzaBoxRigidbody = pizzaBox.GetComponent<Rigidbody>();
-        if (pizzaBoxRigidbody != null)
-        {
-            pizzaBoxRigidbody.linearVelocity = Vector3.zero; // Zera a velocidade atual
+        if (pizzaBoxRigidbody != null){
+            pizzaBoxRigidbody.linearVelocity = Vector3.zero; // Zera a velocidade atual //mudar para linearVelocity na versão mais recente
             pizzaBoxRigidbody.AddForce(Vector3.up * 5f, ForceMode.Impulse); // Ajuste a força conforme necessário
         }
     }
+
+void OnTriggerEnter(Collider other)
+{
+    if (other.gameObject.CompareTag("consumable1"))
+    {
+        Destroy(other.gameObject); // Destroi o consumível
+
+        PlayerBuffs playerBuffs = GetComponent<PlayerBuffs>(); // Obtém a referência ao PlayerBuffs
+        if (playerBuffs != null)
+        {
+            playerBuffs.ApplyBuff(BuffType.Speed, 5f, 5f); // Aplica o buff de velocidade
+        }
+        else
+        {
+            Debug.LogError("PlayerBuffs não encontrado no PlayerController1!");
+        }
+    }
+    if(other.gameObject.CompareTag("consumable2"))
+    {
+        Destroy(other.gameObject); // Destroi o consumível
+
+        PlayerBuffs playerBuffs = GetComponent<PlayerBuffs>(); // Obtém a referência ao PlayerBuffs
+        if (playerBuffs != null)
+        {
+            playerBuffs.ApplyBuff(BuffType.Damage, 5f, 5f); // Aplica o buff de dano
+        }
+        else
+        {
+            Debug.LogError("PlayerBuffs não encontrado no PlayerController1!");
+        }
+    }
+}
+
+    
+    void OnDrawGizmos() // desenha uma esfera para representar o pé do jogador
+    {
+        Gizmos.color = Color.red; // cor vermelha
+        Gizmos.DrawWireSphere(foot.position, 0.3f); // desenha uma esfera na posição do foot com raio 0.3
+    }
+
+
 }

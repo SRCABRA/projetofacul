@@ -59,9 +59,6 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -177,9 +174,6 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -253,6 +247,7 @@ MonoBehaviour:
   abilityCooldown: 2
   AreaAttack: {fileID: 0}
   scaleIncreasePerSecond: 1
+  speedBuffDuration: 5
 --- !u!114 &6108765552082563576
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -278,9 +273,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96cc3e5bad155f443b083c9f7abe697d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pizzabox: 3
-  Player: {fileID: 6055001431153501757}
-  BoxPrefab: {fileID: 1589319413836369823, guid: 8d30b3cf2cc684642b1e65e3ee1eebcb, type: 3}
   invulnerabilityDuration: 1
 --- !u!143 &8961909333833734665
 CharacterController:
@@ -297,6 +289,7 @@ CharacterController:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -366,9 +359,6 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
