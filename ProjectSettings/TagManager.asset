@@ -13,6 +13,7 @@ TagManager:
   - chao
   - consumable1
   - consumable2
+  - backpack
   layers:
   - Default
   - TransparentFX

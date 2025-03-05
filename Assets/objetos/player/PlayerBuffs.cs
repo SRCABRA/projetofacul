@@ -6,6 +6,8 @@ public class PlayerBuffs : MonoBehaviour
     private PlayerController1 playerController1;
     private EnemyController enemyController;
 
+    public GameObject consumable3buffPrefab; // Prefab do consumível 3
+
     private float originalSpeed;
     private float originalDamage;
 
@@ -59,6 +61,29 @@ public class PlayerBuffs : MonoBehaviour
             Debug.Log("Dano do inimigo dobrado!");
         }
     }
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("consumable3")) // Verifica se o Player tocou no objeto consumível
+        {
+            Vector3 spawnPosition = other.transform.position; // Salva a posição antes de destruir
+            Destroy(other.gameObject); // Destrói o consumível
+            Instantiate(consumable3buffPrefab, spawnPosition, Quaternion.identity); // Cria um novo consumível no mesmo local
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 public enum BuffType { Speed, Damage }
@@ -74,3 +99,4 @@ public class Buff
         ExpireTime = expireTime;
     }
 }
+
