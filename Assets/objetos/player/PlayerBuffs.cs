@@ -71,19 +71,6 @@ public class PlayerBuffs : MonoBehaviour
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 public enum BuffType { Speed, Damage }

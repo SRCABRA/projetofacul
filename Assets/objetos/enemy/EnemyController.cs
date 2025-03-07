@@ -3,34 +3,36 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    public Transform player; // Alvo do inimigo
-    public Transform target; // Alvo do inimigo
-    public float life = 10f; // Vida do inimigo
-    public float speed = 5f; // Velocidade do inimigo
-    public float viewDistance = 40f; // Distância máxima para identificar um alvo
+    public Transform player;
+    public Transform target;
+    public float life = 10f;
+    public float speed = 5f;
+    public float viewDistance = 40f;
 
-    public float danobulletbase = 4f; // Dano base do tiro
-    public float danoAreaAttack = 6f;  // Dano do ataque de área
-    public GameObject pizzaBoxPrefab; // Prefab da caixa de pizza
-    public GameObject consumable1Prefab; // Prefab do consumível 1
-    public GameObject consumable2Prefab; // Prefab do consumível 2
+    public float danobulletbase = 4f;
+    public float danoAreaAttack = 6f;
+    public float danoBackpack = 3f;
 
-    public float consumable1DropChance = 0.3f; // Chance de drop do consumível 1
-    public float consumable2DropChance = 0.3f; // Chance de drop do consumível 2
+    public GameObject pizzaBoxPrefab;
+    public GameObject consumable1Prefab;
+    public GameObject consumable2Prefab;
+    public float consumable1DropChance = 0.3f;
+    public float consumable2DropChance = 0.3f;
 
-    private GameObject carriedPizzaBox; // Referência da caixa de pizza carregada
-    private Rigidbody rb; // Referência para o Rigidbody
-    private Renderer enemyRenderer; // Referência para o Renderer
-    private Color originalColor; // Cor original do inimigo
-    private bool isJumping = false; // Para evitar efeitos repetidos
+    private GameObject carriedPizzaBox;
+    private Rigidbody rb;
+    private Renderer enemyRenderer;
+    private Color originalColor;
+    private bool isJumping = false;
+    private bool isFlashing = false; // Para evitar chamadas repetidas
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>(); // Obtém o Rigidbody do inimigo
-        enemyRenderer = GetComponent<Renderer>(); // Obtém o Renderer para mudar a cor
+        rb = GetComponent<Rigidbody>();
+        enemyRenderer = GetComponent<Renderer>();
         if (enemyRenderer != null)
         {
-            originalColor = enemyRenderer.material.color; // Salva a cor original
+            originalColor = enemyRenderer.material.color;
         }
         ChooseTarget();
     }
@@ -51,45 +53,38 @@ public class EnemyController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("AreaAttack") && !isJumping)
         {
-            isJumping = true; // Evita múltiplos impulsos
-
+            isJumping = true;
             life -= danoAreaAttack;
-
-            // Se o Rigidbody existir, adiciona um impulso para cima
-            if (rb != null)
-            {
-                rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z); // Reseta a velocidade vertical
-                rb.AddForce(Vector3.up * 10f, ForceMode.VelocityChange); // Ajuste a força conforme necessário
-            }
-
-            // Pisca vermelho
-            if (enemyRenderer != null)
-            {
-                enemyRenderer.material.color = Color.red;
-            }
-
-            // Restaura a cor após 0.2 segundos
-            Invoke(nameof(ResetColor), 0.2f);
+            JumpEffect();
         }
         else if (collision.gameObject.CompareTag("Bullet"))
         {
             life -= danobulletbase;
         }
-        else if (collision.gameObject.CompareTag("PizzaBox") && collision.transform.parent != player)
+        else if (collision.gameObject.CompareTag("backpack"))
         {
-            Rigidbody pizzaBoxRigidbody = collision.gameObject.GetComponent<Rigidbody>();
-            if (pizzaBoxRigidbody != null && Mathf.Abs(pizzaBoxRigidbody.linearVelocity.x) < 0.01f)
-            {
-                PickUpPizzaBox(collision.gameObject);
-            }
+            life -= danoBackpack;
         }
+
+        // Pisca vermelho para qualquer dano
+        FlashRed();
     }
 
     void OnCollisionExit(Collision collision)
     {
         if (collision.gameObject.CompareTag("AreaAttack"))
         {
-            isJumping = false; // Permite outro impulso ao sair da colisão
+            isJumping = false;
+        }
+    }
+
+    void FlashRed()
+    {
+        if (enemyRenderer != null && !isFlashing) // Evita chamadas múltiplas
+        {
+            isFlashing = true;
+            enemyRenderer.material.color = Color.red;
+            Invoke(nameof(ResetColor), 0.2f);
         }
     }
 
@@ -99,14 +94,16 @@ public class EnemyController : MonoBehaviour
         {
             enemyRenderer.material.color = originalColor;
         }
+        isFlashing = false;
     }
 
-    void PickUpPizzaBox(GameObject pizzaBox)
+    void JumpEffect()
     {
-        carriedPizzaBox = pizzaBox;
-        carriedPizzaBox.transform.SetParent(transform);
-        carriedPizzaBox.transform.localPosition = new Vector3(0, 1, 0); // Ajuste a posição conforme necessário
-        carriedPizzaBox.transform.localRotation = Quaternion.identity; // Reseta a rotação
+        if (rb != null)
+        {
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+            rb.AddForce(Vector3.up * 10f, ForceMode.VelocityChange);
+        }
     }
 
     void Drop()
@@ -117,13 +114,12 @@ public class EnemyController : MonoBehaviour
             Rigidbody pizzaBoxRigidbody = carriedPizzaBox.GetComponent<Rigidbody>();
             if (pizzaBoxRigidbody != null)
             {
-                pizzaBoxRigidbody.linearVelocity = Vector3.zero; // Zera a velocidade atual
+                pizzaBoxRigidbody.linearVelocity = Vector3.zero;
                 pizzaBoxRigidbody.AddForce(Vector3.up * 5f, ForceMode.Impulse);
             }
             carriedPizzaBox = null;
         }
 
-        // Adiciona a lógica para dropar os consumíveis
         if (UnityEngine.Random.value <= consumable1DropChance)
         {
             Instantiate(consumable1Prefab, transform.position, Quaternion.identity);

@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: -1052190986810376094}
   m_Layer: 0
   m_Name: backpack
-  m_TagString: Untagged
+  m_TagString: backpack
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
