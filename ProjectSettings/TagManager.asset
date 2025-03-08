@@ -14,6 +14,8 @@ TagManager:
   - consumable1
   - consumable2
   - backpack
+  - consumable3
+  - consumable4
   layers:
   - Default
   - TransparentFX

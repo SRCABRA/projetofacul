@@ -1,10 +1,4 @@
-using System;
-using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.TerrainUtils;
-using UnityEngine.TextCore.Text;
 
 public class PlayerController1 : MonoBehaviour
 {
@@ -39,13 +33,11 @@ public class PlayerController1 : MonoBehaviour
     private float timeInAir = 0f;
     public float scaleIncreasePerSecond = 0.1f; // valor para aumentar a escala por segundo no ar
 
-
-
-
+    private PlayerBuffs playerBuffs; // Referência para o sistema de buffs
 
     void Start()
     {
-        PlayerBuffs playerBuffs = GetComponent<PlayerBuffs>(); 
+        playerBuffs = GetComponent<PlayerBuffs>(); 
         controller = GetComponent<CharacterController>();
         MyCamera = Camera.main.transform;
         cameraOffset = MyCamera.position - transform.position;
@@ -53,7 +45,6 @@ public class PlayerController1 : MonoBehaviour
 
     void Update()
     {
-
         // Captura inputs de movimentação e calcula a direção relativa à câmera
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
@@ -72,14 +63,16 @@ public class PlayerController1 : MonoBehaviour
         // Verifica se o personagem está no chão
         isGrounded = Physics.CheckSphere(foot.position, 0.3f, colisaoLayer);
 
-        //código do pulo
-        if (Input.GetButtonDown("Jump") && isGrounded){//se o personagem estiver no chão e o botão de pulo for pressionado
+        // Código do pulo
+        if (Input.GetButtonDown("Jump") && isGrounded) // Se o personagem estiver no chão e o botão de pulo for pressionado
+        {
             gravity = jumpForce;
-            timeInAir = 0f; // reseta o tempo no ar ao pular
+            timeInAir = 0f; // Reseta o tempo no ar ao pular
         }
 
         // Verifica se o jogador pressionou o botão de pulo duas vezes rapidamente
-        if (Input.GetButtonDown("Jump")){
+        if (Input.GetButtonDown("Jump"))
+        {
             if (Time.time - lastJumpTime < doubleClickTime)
             {
                 // Ativa a habilidade de STOMP se o jogador pressionar o botão de pulo duas vezes rapidamente
@@ -106,7 +99,8 @@ public class PlayerController1 : MonoBehaviour
 
     void ActivateStompAbility()
     {
-        if (Time.time - lastAbilityTime >= abilityCooldown){
+        if (Time.time - lastAbilityTime >= abilityCooldown)
+        {
             // Ativa a habilidade de STOMP
             stompActivated = true;
             lastAbilityTime = Time.time;
@@ -119,7 +113,8 @@ public class PlayerController1 : MonoBehaviour
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
         // Verifica se o jogador colidiu com o chão após usar a habilidade de STOMP
-        if (stompActivated && ((1 << hit.gameObject.layer) & colisaoLayer) != 0){
+        if (stompActivated && ((1 << hit.gameObject.layer) & colisaoLayer) != 0)
+        {
             // Calcula a nova escala do AreaAttack com base no tempo no ar
             float newScale = 1f + (timeInAir * scaleIncreasePerSecond);
             Vector3 areaAttackScale = new Vector3(newScale, newScale, newScale);
@@ -128,62 +123,47 @@ public class PlayerController1 : MonoBehaviour
             GameObject areaAttackInstance = Instantiate(AreaAttack, foot.position, Quaternion.identity);
             areaAttackInstance.transform.localScale = areaAttackScale;
 
-            stompActivated = false; // reseta a variável stompActivated
+            stompActivated = false; // Reseta a variável stompActivated
         }
 
         // Verifica se o jogador colidiu com um inimigo
-        if (hit.gameObject.CompareTag("Enemy")){
+        if (hit.gameObject.CompareTag("Enemy"))
+        {
             Debug.Log("Player colidiu com inimigo!");
         }
     }
 
-    void DropPizzaBox(GameObject pizzaBox)
+    void OnTriggerEnter(Collider other)
     {
-        Rigidbody pizzaBoxRigidbody = pizzaBox.GetComponent<Rigidbody>();
-        if (pizzaBoxRigidbody != null){
-            pizzaBoxRigidbody.linearVelocity = Vector3.zero; // Zera a velocidade atual //mudar para linearVelocity na versão mais recente
-            pizzaBoxRigidbody.AddForce(Vector3.up * 5f, ForceMode.Impulse); // Ajuste a força conforme necessário
+        if (other.gameObject.CompareTag("consumable1")) // Buff de velocidade
+        {
+            Destroy(other.gameObject); // Destroi o consumível
+            if (playerBuffs != null)
+            {
+                playerBuffs.ApplyBuff(BuffType.Speed, 5f, 5.0f); // Aplica o buff de velocidade
+            }
+        }
+        else if (other.gameObject.CompareTag("consumable2")) // Buff de dano
+        {
+            Destroy(other.gameObject);
+            if (playerBuffs != null)
+            {
+                playerBuffs.ApplyBuff(BuffType.Damage, 5f, 5f); // Aplica o buff de dano
+            }
+        }
+        else if (other.gameObject.CompareTag("consumable4")) // Buff de invulnerabilidade
+        {
+            Destroy(other.gameObject);
+            if (playerBuffs != null)
+            {
+                playerBuffs.ApplyBuff(BuffType.Invulnerability, 5f); // Jogador fica invulnerável por 5 segundos
+            }
         }
     }
 
-void OnTriggerEnter(Collider other)
-{
-    if (other.gameObject.CompareTag("consumable1"))
-    {
-        Destroy(other.gameObject); // Destroi o consumível
-
-        PlayerBuffs playerBuffs = GetComponent<PlayerBuffs>(); // Obtém a referência ao PlayerBuffs
-        if (playerBuffs != null)
-        {
-            playerBuffs.ApplyBuff(BuffType.Speed, 5f, 5f); // Aplica o buff de velocidade
-        }
-        else
-        {
-            Debug.LogError("PlayerBuffs não encontrado no PlayerController1!");
-        }
-    }
-    if(other.gameObject.CompareTag("consumable2"))
-    {
-        Destroy(other.gameObject); // Destroi o consumível
-
-        PlayerBuffs playerBuffs = GetComponent<PlayerBuffs>(); // Obtém a referência ao PlayerBuffs
-        if (playerBuffs != null)
-        {
-            playerBuffs.ApplyBuff(BuffType.Damage, 5f, 5f); // Aplica o buff de dano
-        }
-        else
-        {
-            Debug.LogError("PlayerBuffs não encontrado no PlayerController1!");
-        }
-    }
-}
-
-    
     void OnDrawGizmos() // desenha uma esfera para representar o pé do jogador
     {
         Gizmos.color = Color.red; // cor vermelha
         Gizmos.DrawWireSphere(foot.position, 0.3f); // desenha uma esfera na posição do foot com raio 0.3
     }
-
-
 }

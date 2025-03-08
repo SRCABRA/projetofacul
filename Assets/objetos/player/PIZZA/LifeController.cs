@@ -3,8 +3,8 @@ using System.Collections;
 
 public class LifeController : MonoBehaviour
 {
-    public float invulnerabilityDuration = 2f;
-    private bool isInvulnerable = false;
+    public float invulnerabilityDuration = 2f; // Tempo padrão de invulnerabilidade
+    private bool isInvulnerable = false; // Flag para controlar invulnerabilidade
     private Transform[] pizzaBoxes;
     private Vector3[] originalPositions;
 
@@ -22,17 +22,12 @@ public class LifeController : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-
-    }
-
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Enemy") && !isInvulnerable)
         {
             ThrowPizzaBox();
-            StartCoroutine(InvulnerabilityCoroutine());
+            StartCoroutine(InvulnerabilityCoroutine(invulnerabilityDuration));
         }
     }
 
@@ -65,10 +60,19 @@ public class LifeController : MonoBehaviour
         }
     }
 
-    IEnumerator InvulnerabilityCoroutine()
+    // Método para ativar a invulnerabilidade externamente (usado pelo PlayerBuffs)
+    public void ActivateInvulnerability(float duration)
+    {
+        StartCoroutine(InvulnerabilityCoroutine(duration));
+    }
+
+    // Coroutine que lida com a invulnerabilidade
+    IEnumerator InvulnerabilityCoroutine(float duration)
     {
         isInvulnerable = true;
-        yield return new WaitForSeconds(invulnerabilityDuration);
+        Debug.Log("Jogador está invulnerável!");
+        yield return new WaitForSeconds(duration);
         isInvulnerable = false;
+        Debug.Log("Invulnerabilidade acabou!");
     }
 }
