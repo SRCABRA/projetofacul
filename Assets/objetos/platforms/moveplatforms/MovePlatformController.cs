@@ -8,7 +8,7 @@ public class MovePlatformController : MonoBehaviour
     public Transform targetCube;
     
     // Duração da transição suave.
-    public float transitionDuration = 1.0f;
+    public float transitionDuration = 0.1f;
     
     // Flag para garantir que o código seja executado apenas uma vez.
     private bool hasExecuted = false;
