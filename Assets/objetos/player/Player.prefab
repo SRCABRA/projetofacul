@@ -266,6 +266,7 @@ GameObject:
   - component: {fileID: 7985764634047048799}
   - component: {fileID: 2365133014126789774}
   - component: {fileID: 8548845813031383526}
+  - component: {fileID: 7164700128230560242}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -408,6 +409,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bullet: {fileID: 777247542936644158, guid: eb47b8a47a398b546a8ccfe038959752, type: 3}
+  shootRange: 40
 --- !u!114 &5610679156239945332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -499,6 +501,21 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
+--- !u!114 &7164700128230560242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7254659033117918914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34a44c9b3174e5f4da5c0df5dca05afc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dustPrefab: {fileID: 7962681502467013618, guid: 11c55046e50d8054d9a853d03f50ef18, type: 3}
+  spawnRate: 0.05
+  dustOffset: {x: 0, y: -0.5, z: 0}
 --- !u!1001 &1703645641538969494
 PrefabInstance:
   m_ObjectHideFlags: 0

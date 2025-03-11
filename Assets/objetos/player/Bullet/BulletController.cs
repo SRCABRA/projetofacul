@@ -47,9 +47,21 @@ public class BulletController : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if(collision.gameObject.CompareTag("Enemy"))
+        if (collision.gameObject.CompareTag("Enemy"))
         {
+            EnemyController enemy = collision.gameObject.GetComponent<EnemyController>();
+            if (enemy != null)
+            {
+                PlayerBuffs playerBuffs = FindFirstObjectByType<PlayerBuffs>();
+                if (playerBuffs != null)
+                {
+                    float danoFinal = playerBuffs.CurrentDamage; // Usa o dano atualizado
+                    enemy.life -= danoFinal;
+                }
+            }
             Destroy(gameObject);
         }
     }
+
+
 }

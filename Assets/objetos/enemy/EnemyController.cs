@@ -16,15 +16,18 @@ public class EnemyController : MonoBehaviour
     public GameObject pizzaBoxPrefab;
     public GameObject consumable1Prefab;
     public GameObject consumable2Prefab;
-    public float consumable1DropChance = 0.3f;
-    public float consumable2DropChance = 0.3f;
+    public GameObject consumable4Prefab; // Novo consumível para invulnerabilidade
+
+    [Range(0f, 1f)] public float consumable1DropChance = 0.3f;
+    [Range(0f, 1f)] public float consumable2DropChance = 0.3f;
+    [Range(0f, 1f)] public float consumable4DropChance = 0.1f; // Baixa chance (10%)
 
     private GameObject carriedPizzaBox;
     private Rigidbody rb;
     private Renderer enemyRenderer;
     private Color originalColor;
     private bool isJumping = false;
-    private bool isFlashing = false; // Para evitar chamadas repetidas
+    private bool isFlashing = false;
 
     void Start()
     {
@@ -66,7 +69,6 @@ public class EnemyController : MonoBehaviour
             life -= danoBackpack;
         }
 
-        // Pisca vermelho para qualquer dano
         FlashRed();
     }
 
@@ -80,7 +82,7 @@ public class EnemyController : MonoBehaviour
 
     void FlashRed()
     {
-        if (enemyRenderer != null && !isFlashing) // Evita chamadas múltiplas
+        if (enemyRenderer != null && !isFlashing)
         {
             isFlashing = true;
             enemyRenderer.material.color = Color.red;
@@ -108,6 +110,7 @@ public class EnemyController : MonoBehaviour
 
     void Drop()
     {
+        // Dropa a pizza se o inimigo a estiver carregando
         if (carriedPizzaBox != null)
         {
             carriedPizzaBox.transform.SetParent(null);
@@ -120,13 +123,17 @@ public class EnemyController : MonoBehaviour
             carriedPizzaBox = null;
         }
 
-        if (UnityEngine.Random.value <= consumable1DropChance)
+        // Sorteia quais consumíveis serão dropados
+        TryDropConsumable(consumable1Prefab, consumable1DropChance);
+        TryDropConsumable(consumable2Prefab, consumable2DropChance);
+        TryDropConsumable(consumable4Prefab, consumable4DropChance); // Consumível raro
+    }
+
+    void TryDropConsumable(GameObject consumablePrefab, float dropChance)
+    {
+        if (consumablePrefab != null && UnityEngine.Random.value <= dropChance)
         {
-            Instantiate(consumable1Prefab, transform.position, Quaternion.identity);
-        }
-        if (UnityEngine.Random.value <= consumable2DropChance)
-        {
-            Instantiate(consumable2Prefab, transform.position, Quaternion.identity);
+            Instantiate(consumablePrefab, transform.position, Quaternion.identity);
         }
     }
 
