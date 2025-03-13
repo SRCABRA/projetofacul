@@ -1,15 +1,16 @@
 using System.Threading;
 using UnityEngine;
 
-public class TurretController : MonoBehaviour
+public class TurretController : EnemyPai
 {
     public GameObject bulletPrefab; // Prefab da bala
     public Transform firePoint; // Ponto de disparo
     public float fireRate = 4f; // Tempo entre os disparos
     private float fireTimer = 0f; // Temporizador interno
 
-    void Update()
+    protected override void Start()
     {
+        base.Start();
         // Atualiza o tempo
         fireTimer += Time.deltaTime;
 
@@ -21,6 +22,10 @@ public class TurretController : MonoBehaviour
         }
     }
 
+    protected override void Update()
+    {
+        base.Update();
+    }
     // Método que dispara a BulletEnemy
     void Shoot()
     {

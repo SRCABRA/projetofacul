@@ -14,17 +14,13 @@ public class Enemy2Controller : EnemyPai
 
     protected override void Start()
     {
+        base.Start();
         StartCoroutine(PauseMovement()); // Inicia a rotina de pausas
     }
 
     protected override void Update()
     {
-        if (life <= 0)
-        {
-            Drop();
-            Destroy(gameObject);
-        }
-
+        base.Update();
         if (isPaused || waypoints.Length == 0) return; // Se estiver pausado, não se move
 
         // Pega o waypoint atual

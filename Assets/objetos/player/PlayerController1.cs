@@ -58,7 +58,7 @@ public class PlayerController1 : MonoBehaviour
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
         Vector3 position = new Vector3(horizontal, 0, vertical);
-        position = MyCamera.TransformDirection(position); 
+        position = MyCamera.TransformDirection(position);
         position.y = 0f;
 
         // Movimenta o personagem
