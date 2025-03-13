@@ -4,10 +4,10 @@ using System.Collections.Generic;
 public class PlayerBuffs : MonoBehaviour
 {
     private PlayerController1 playerController1;
-    private EnemyController enemyController;
+    private EnemyPai enemyController; // Alterado para EnemyPai
     private LifeController lifeController;
 
-    public GameObject consumable3buffPrefab; // Prefab do consumível 3
+    public GameObject consumable3buffPrefab;
 
     private float originalSpeed;
     private float originalDamage;
@@ -16,14 +16,13 @@ public class PlayerBuffs : MonoBehaviour
     private float activeDamageMultiplier = 1f;
     public float CurrentDamage { get { return originalDamage * activeDamageMultiplier; } }
 
-
     private List<Buff> activeBuffs = new List<Buff>();
 
     void Start()
     {
         playerController1 = GetComponent<PlayerController1>();
         lifeController = GetComponent<LifeController>();
-        enemyController = FindFirstObjectByType<EnemyController>();
+        enemyController = FindFirstObjectByType<EnemyPai>(); // Alterado para EnemyPai
 
         if (playerController1 != null)
         {
@@ -31,7 +30,7 @@ public class PlayerBuffs : MonoBehaviour
         }
         if (enemyController != null)
         {
-            originalDamage = enemyController.danobulletbase;
+            originalDamage = enemyController.danoBullet; // Usando danoBullet da classe EnemyPai
         }
     }
 
@@ -40,7 +39,6 @@ public class PlayerBuffs : MonoBehaviour
         float currentTime = Time.time;
         activeBuffs.RemoveAll(buff => buff.ExpireTime <= currentTime);
 
-        // Aplica a velocidade apenas se houver buff ativo
         float speedBuff = 0f;
         float damageBuffMultiplier = 1f;
 
@@ -50,19 +48,16 @@ public class PlayerBuffs : MonoBehaviour
             if (buff.Type == BuffType.Damage) damageBuffMultiplier = activeDamageMultiplier;
         }
 
-        // Atualiza a velocidade corretamente
         if (playerController1 != null)
         {
             playerController1.speed = originalSpeed + speedBuff;
         }
 
-        // Atualiza o dano corretamente
         if (enemyController != null)
         {
-            enemyController.danobulletbase = originalDamage * damageBuffMultiplier;
+            enemyController.danoBullet = originalDamage * damageBuffMultiplier;
         }
     }
-
 
     public void ApplyBuff(BuffType type, float duration, float value = 0)
     {
@@ -75,12 +70,11 @@ public class PlayerBuffs : MonoBehaviour
             playerController1.speed += activeSpeedBonus;
             Debug.Log($"Buff de Velocidade Ativado! Nova velocidade: {playerController1.speed}");
         }
-
         else if (type == BuffType.Damage && enemyController != null)  
         {
             activeDamageMultiplier = value;
-            enemyController.danobulletbase = originalDamage * activeDamageMultiplier;
-            Debug.Log($"Buff de Dano Ativado! Novo dano: {enemyController.danobulletbase}");
+            enemyController.danoBullet = originalDamage * activeDamageMultiplier;
+            Debug.Log($"Buff de Dano Ativado! Novo dano: {enemyController.danoBullet}");
         }
         else if (type == BuffType.Invulnerability && lifeController != null)
         {
@@ -104,7 +98,6 @@ public class PlayerBuffs : MonoBehaviour
         }
     }
 }
-
 
 public enum BuffType { Speed, Damage, Invulnerability }
 

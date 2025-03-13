@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections; // Necessário para corrotinas
 
-public class Enemy2Controller : MonoBehaviour
+public class Enemy2Controller : EnemyPai
 {
     public Transform[] waypoints; // Array de pontos do caminho
     public float speed = 2f; // Velocidade do inimigo
@@ -12,13 +12,19 @@ public class Enemy2Controller : MonoBehaviour
 
     public GameObject turretPrefab; // Prefab da torreta
 
-    void Start()
+    protected override void Start()
     {
         StartCoroutine(PauseMovement()); // Inicia a rotina de pausas
     }
 
-    void Update()
+    protected override void Update()
     {
+        if (life <= 0)
+        {
+            Drop();
+            Destroy(gameObject);
+        }
+
         if (isPaused || waypoints.Length == 0) return; // Se estiver pausado, não se move
 
         // Pega o waypoint atual
@@ -59,7 +65,7 @@ public class Enemy2Controller : MonoBehaviour
     {
         while (true) // Loop infinito para repetir a pausa constantemente
         {
-            yield return new WaitForSeconds(5f); // Espera 15 segundos
+            yield return new WaitForSeconds(10f); // Espera 15 segundos
             isPaused = true; // Pausa o inimigo
             InstantiateTurret(); // Cria a torreta
             yield return new WaitForSeconds(1f); // Espera 1 segundo parado
