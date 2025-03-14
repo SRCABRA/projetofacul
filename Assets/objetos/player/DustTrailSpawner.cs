@@ -4,9 +4,8 @@ public class DustTrailSpawner : MonoBehaviour
 {
     public GameObject dustPrefab; // Prefab da poeira
     public float spawnRate = 0.05f; // Tempo entre cada poeira gerada
-    public Vector3 dustOffset = new Vector3(0, 0.1f, 0); // Ajuste a posição no Inspector
 
-    private float nextSpawnTime = 0f;
+    private float nextSpawnTime = 0.2f;
     private CharacterController controller;
 
     void Start()
@@ -29,8 +28,15 @@ public class DustTrailSpawner : MonoBehaviour
 
     void SpawnDust()
     {
-        // Define a posição da poeira com base no offset configurável
-        Vector3 spawnPos = transform.position + dustOffset + new Vector3(Random.Range(-0.1f, 0.1f), 0, Random.Range(-0.1f, 0.1f));
+        // Obtém a posição dos pés do jogador automaticamente
+        float footY = controller.bounds.min.y;
+
+        // Define a posição da poeira com um leve random na horizontal
+        Vector3 spawnPos = new Vector3(
+            transform.position.x + Random.Range(-0.1f, 0.1f), // Pequena variação no X
+            footY, // Sempre no chão
+            transform.position.z + Random.Range(-0.1f, 0.1f)  // Pequena variação no Z
+        );
 
         Instantiate(dustPrefab, spawnPos, Quaternion.identity);
     }
