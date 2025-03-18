@@ -57,19 +57,6 @@ public class PizzaBoxController : MonoBehaviour
         canBeCollected = true;
     }
 
-    IEnumerator DestroyAfterTime(float time)
-    {
-        yield return new WaitForSeconds(time);
-
-        // Impede que o jogador colete a caixa antes da destruição
-        canBeCollected = false;
-
-        // Notifica o gerenciador antes de destruir
-        PizzaBoxManager.instance.PizzaBoxDestroyed();
-
-        Destroy(gameObject); // Destroi o objeto
-    }
-
     void StartDestructionTimer()
     {
         // Garante que não tenha dois timers rodando ao mesmo tempo
@@ -87,6 +74,12 @@ public class PizzaBoxController : MonoBehaviour
             StopCoroutine(destructionTimerCoroutine);
             destructionTimerCoroutine = null; // Reseta o timer
         }
+    }
+
+    IEnumerator DestroyAfterTime(float time)
+    {
+        yield return new WaitForSeconds(time);
+        Destroy(gameObject); // Destroi o objeto após o tempo definido
     }
 
     void FloatAndRotate()

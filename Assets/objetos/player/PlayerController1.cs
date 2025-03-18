@@ -174,6 +174,14 @@ public class PlayerController1 : MonoBehaviour
                 playerBuffs.ApplyBuff(BuffType.Invulnerability, 5f);
             }
         }
+    if (other.gameObject.CompareTag("PizzaBox"))
+    {
+        LifeController lifeController = GetComponent<LifeController>();
+        if (lifeController != null)
+        {
+            lifeController.RestorePizzaBox(other.transform);
+        }
+    }
     }
 
     void OnDrawGizmos()

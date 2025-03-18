@@ -1,25 +1,40 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class LifeController : MonoBehaviour
 {
-    public float invulnerabilityDuration = 2f; // Tempo padrão de invulnerabilidade
-    private bool isInvulnerable = false; // Flag para controlar invulnerabilidade
-    private Transform[] pizzaBoxes;
-    private Vector3[] originalPositions;
+    public float invulnerabilityDuration = 2f; // Tempo de invulnerabilidade
+    private bool isInvulnerable = false; // Controle de invulnerabilidade
+
+    private List<Transform> pizzaBoxes = new List<Transform>(); // Todas as pizzas coletáveis
+    private Dictionary<Transform, Vector3> originalPositions = new Dictionary<Transform, Vector3>(); // Posições originais das pizzas
 
     void Start()
     {
-        // Armazena as posições originais das caixas de pizza
-        pizzaBoxes = GetComponentsInChildren<Transform>();
-        originalPositions = new Vector3[pizzaBoxes.Length];
-        for (int i = 0; i < pizzaBoxes.Length; i++)
+        FindAllPizzaBoxes();
+    }
+
+    void FindAllPizzaBoxes()
+    {
+        // Procura todas as caixas de pizza no jogo
+        GameObject[] allPizzas = GameObject.FindGameObjectsWithTag("PizzaBox");
+
+        foreach (GameObject pizza in allPizzas)
         {
-            if (pizzaBoxes[i].CompareTag("PizzaBox"))
+            Transform pizzaTransform = pizza.transform;
+
+            if (!pizzaBoxes.Contains(pizzaTransform))
             {
-                originalPositions[i] = pizzaBoxes[i].localPosition;
+                pizzaBoxes.Add(pizzaTransform);
+                if (!originalPositions.ContainsKey(pizzaTransform))
+                {
+                    originalPositions[pizzaTransform] = pizzaTransform.localPosition;
+                }
             }
         }
+
+        Debug.Log("Total de pizzas registradas: " + pizzaBoxes.Count);
     }
 
     void OnCollisionEnter(Collision collision)
@@ -33,40 +48,65 @@ public class LifeController : MonoBehaviour
 
     void ThrowPizzaBox()
     {
-        foreach (Transform child in transform)
+        if (pizzaBoxes.Count > 0)
         {
-            if (child.CompareTag("PizzaBox"))
-            {
-                Rigidbody rb = child.gameObject.AddComponent<Rigidbody>();
-                rb.AddForce(transform.forward * 10f, ForceMode.Impulse);
-                rb.constraints = RigidbodyConstraints.FreezeRotation; // Congela a rotação
-                child.SetParent(null);
-                break; // Sai do loop após encontrar e lançar uma caixa de pizza
-            }
+            Transform pizza = pizzaBoxes[0]; // Pega a primeira pizza da lista
+            pizzaBoxes.RemoveAt(0); // Remove da lista de pizzas nas costas
+
+            Rigidbody rb = pizza.gameObject.AddComponent<Rigidbody>();
+            rb.AddForce(transform.forward * 10f, ForceMode.Impulse);
+            rb.constraints = RigidbodyConstraints.FreezeRotation;
+
+            pizza.SetParent(null); // Solta a pizza no mundo
+
+            Debug.Log("Pizza perdida! Restam: " + pizzaBoxes.Count);
+        }
+        else
+        {
+            Debug.Log("Não há mais pizzas para perder!");
         }
     }
 
-    public void RestorePizzaBox(Transform pizzaBox)
+public void RestorePizzaBox(Transform pizzaBox)
+{
+    // Garante que a pizza seja adicionada de volta à lista
+    if (!pizzaBoxes.Contains(pizzaBox))
     {
-        for (int i = 0; i < pizzaBoxes.Length; i++)
-        {
-            if (pizzaBoxes[i] == pizzaBox)
-            {
-                pizzaBox.SetParent(transform);
-                pizzaBox.localPosition = originalPositions[i];
-                Destroy(pizzaBox.GetComponent<Rigidbody>());
-                break;
-            }
-        }
+        pizzaBoxes.Add(pizzaBox);
     }
 
-    // Método para ativar a invulnerabilidade externamente (usado pelo PlayerBuffs)
+    // Se a pizza não estava registrada, adicionamos ela com uma posição padrão
+    if (!originalPositions.ContainsKey(pizzaBox))
+    {
+        originalPositions[pizzaBox] = new Vector3(0, 1, 0); // Posição padrão para evitar erro
+    }
+
+    // Faz a pizza voltar para as costas do jogador
+    pizzaBox.SetParent(transform);
+
+    // Ajusta a posição relativa correta
+    if (originalPositions.ContainsKey(pizzaBox))
+    {
+        pizzaBox.localPosition = originalPositions[pizzaBox];
+    }
+    else
+    {
+        pizzaBox.localPosition = new Vector3(0, 1, 0); // Caso não tenha posição salva
+    }
+
+    // Remove a física para impedir comportamento inesperado
+    Rigidbody rb = pizzaBox.GetComponent<Rigidbody>();
+    if (rb != null)
+    {
+        Destroy(rb);
+    }
+}
+
     public void ActivateInvulnerability(float duration)
     {
         StartCoroutine(InvulnerabilityCoroutine(duration));
     }
 
-    // Coroutine que lida com a invulnerabilidade
     IEnumerator InvulnerabilityCoroutine(float duration)
     {
         isInvulnerable = true;
@@ -74,5 +114,13 @@ public class LifeController : MonoBehaviour
         yield return new WaitForSeconds(duration);
         isInvulnerable = false;
         Debug.Log("Invulnerabilidade acabou!");
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("PizzaBox"))
+        {
+            RestorePizzaBox(other.transform);
+        }
     }
 }
