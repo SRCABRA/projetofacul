@@ -33,9 +33,5 @@ public class TurretController : EnemyPai
         {
             Instantiate(bulletPrefab, firePoint.position, firePoint.rotation); // Cria a bala
         }
-        else
-        {
-            Debug.LogWarning("BulletPrefab ou FirePoint não foram atribuídos!");
-        }
     }
 }

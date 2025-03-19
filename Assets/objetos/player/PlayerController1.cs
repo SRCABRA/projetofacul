@@ -45,11 +45,6 @@ public class PlayerController1 : MonoBehaviour
 
         // Procura o Animator no objeto filho "Idle"
         animator = GetComponentInChildren<Animator>();
-
-        if (animator == null)
-        {
-            Debug.LogError("Animator não encontrado! Certifique-se de que o objeto 'Idle' dentro do Player tem um Animator.");
-        }
     }
 
     void Update()
@@ -140,12 +135,6 @@ public class PlayerController1 : MonoBehaviour
 
             stompActivated = false;
         }
-
-        // Verifica se o jogador colidiu com um inimigo
-        if (hit.gameObject.CompareTag("Enemy"))
-        {
-            Debug.Log("Player colidiu com inimigo!");
-        }
     }
 
     void OnTriggerEnter(Collider other)
@@ -174,14 +163,6 @@ public class PlayerController1 : MonoBehaviour
                 playerBuffs.ApplyBuff(BuffType.Invulnerability, 5f);
             }
         }
-    if (other.gameObject.CompareTag("PizzaBox"))
-    {
-        LifeController lifeController = GetComponent<LifeController>();
-        if (lifeController != null)
-        {
-            lifeController.RestorePizzaBox(other.transform);
-        }
-    }
     }
 
     void OnDrawGizmos()

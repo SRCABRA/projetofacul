@@ -35,7 +35,6 @@ public class BulletEnemyController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            Debug.Log("Tiro do inimigo acertou o player");
             Destroy(gameObject); // Destroi a bala ao colidir
         }
     }

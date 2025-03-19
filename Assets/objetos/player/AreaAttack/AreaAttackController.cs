@@ -10,7 +10,6 @@ public class AreaAttackController : MonoBehaviour
     void Start()
     {
         timer = timerDuration;
-        Debug.Log("AreaAttackController Start");
     }
 
     // Update is called once per frame

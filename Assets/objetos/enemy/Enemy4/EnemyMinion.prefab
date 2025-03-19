@@ -178,7 +178,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b81319862760b342aa1861054901d85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  life: 10
+  life: 50
   danoBullet: 4
   danoAreaAttack: 6
   danoBackpack: 3
