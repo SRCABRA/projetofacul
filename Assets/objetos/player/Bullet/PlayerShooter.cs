@@ -5,6 +5,7 @@ public class PlayerShooter : MonoBehaviour
     private float timer;
     public GameObject bullet;
     public float shootRange = 40f; // Distância mínima para atirar
+    public LayerMask obstacleMask; // Camada dos obstáculos
 
     void Start()
     {
@@ -20,7 +21,8 @@ public class PlayerShooter : MonoBehaviour
             if (nearestEnemy != null)
             {
                 float distance = Vector3.Distance(transform.position, nearestEnemy.transform.position);
-                if (distance <= shootRange) // Só atira se o inimigo estiver dentro da distância permitida
+                
+                if (distance <= shootRange && CanSeeEnemy(nearestEnemy)) // Só atira se enxergar o inimigo
                 {
                     Shoot();
                     timer = 0;
@@ -32,7 +34,6 @@ public class PlayerShooter : MonoBehaviour
     void Shoot()
     {
         Instantiate(bullet, transform.position, transform.rotation);
-        Debug.Log("Atirou!");
     }
 
     GameObject GetNearestEnemy()
@@ -51,5 +52,21 @@ public class PlayerShooter : MonoBehaviour
             }
         }
         return nearestEnemy;
+    }
+
+    bool CanSeeEnemy(GameObject enemy)
+    {
+        Vector3 direction = (enemy.transform.position - transform.position).normalized;
+        float distance = Vector3.Distance(transform.position, enemy.transform.position);
+
+        // Raycast para detectar se há algo entre o jogador e o inimigo
+        if (Physics.Raycast(transform.position, direction, out RaycastHit hit, distance, obstacleMask))
+        {
+            Debug.DrawLine(transform.position, hit.point, Color.red, 0.2f);
+            return false; // O tiro é bloqueado
+        }
+
+        Debug.DrawLine(transform.position, enemy.transform.position, Color.green, 0.2f);
+        return true; // O jogador pode atirar
     }
 }

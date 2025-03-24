@@ -2,168 +2,176 @@ using UnityEngine;
 
 public class PlayerController1 : MonoBehaviour
 {
-    // Variáveis de movimentação e física
-    public float speed = 15.0f; // velocidade do personagem
-    public float gravity = -10f; // gravidade normal
-    public float jumpForce = 5f; // força do pulo
-    private bool isGrounded; // verifica se o personagem está no chão 
+    public float speed = 15.0f;
+    public float gravity = -10f;
+    public float jumpForce = 5f;
+    private bool isGrounded;
 
-    [SerializeField] private Transform foot; // ponto para verificação de colisão com o chão
+    [SerializeField] private Transform foot;
     [SerializeField] private LayerMask colisaoLayer;
 
-    private Transform MyCamera; // câmera do personagem
-    private CharacterController controller; // controlador de personagem            
-    public Vector3 cameraOffset; // offset da câmera em relação ao jogador
+    private Transform MyCamera;
+    private CharacterController controller;
+    public Vector3 cameraOffset;
 
-    // Variáveis do STOMP --------------------------------------------
-    public float abilityActivationHeight = 5.0f; // altura mínima para ativar a habilidade
-    public float extraGravityForce = -20f; // força extra para simular aumento da gravidade
-    public float abilityCooldown = 5f; // tempo de recarga da habilidade
+    public float abilityActivationHeight = 5.0f;
+    public float extraGravityForce = -20f;
+    public float abilityCooldown = 5f;
+    public GameObject AreaAttack;
+    private float lastAbilityTime = -10f;
+    private bool stompActivated = false;
 
-    public GameObject AreaAttack; // prefab da área de ataque
-
-    private float lastAbilityTime = -10f; // armazena o último tempo em que a habilidade foi acionada
-    private bool stompActivated = false; // variável para rastrear se a habilidade de STOMP foi ativada
-
-    // Variáveis para detectar duplo clique
     private float lastJumpTime = 0f;
-    private float doubleClickTime = 0.3f; // intervalo máximo entre cliques para ser considerado um duplo clique
+    private float doubleClickTime = 0.3f;
 
-    // Variáveis para calcular a escala do AreaAttack
     private float timeInAir = 0f;
-    public float scaleIncreasePerSecond = 0.1f; // valor para aumentar a escala por segundo no ar
+    public float scaleIncreasePerSecond = 0.1f;
 
-    private PlayerBuffs playerBuffs; // Referência para o sistema de buffs
+    private PlayerBuffs playerBuffs;
+    private Animator animator;
+
+    private bool canPlaceMine = false;
+    private PlayerBuffs mineBuffSystem;
 
     void Start()
     {
-        playerBuffs = GetComponent<PlayerBuffs>(); 
+        playerBuffs = GetComponent<PlayerBuffs>();
         controller = GetComponent<CharacterController>();
         MyCamera = Camera.main.transform;
         cameraOffset = MyCamera.position - transform.position;
+        animator = GetComponentInChildren<Animator>();
     }
 
     void Update()
     {
-        // Captura inputs de movimentação e calcula a direção relativa à câmera
+        // Captura inputs de movimentação
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
         Vector3 position = new Vector3(horizontal, 0, vertical);
         position = MyCamera.TransformDirection(position);
-        position.y = 0f; // zera o eixo y
+        position.y = 0f;
 
         // Movimenta o personagem
         controller.Move(position * speed * Time.deltaTime);
 
+        // Atualiza animações
+        animator.SetBool("move", position != Vector3.zero);
+        animator.SetBool("idle", position == Vector3.zero);
+
         // Rotaciona o personagem na direção do movimento
-        if (position != Vector3.zero){
+        if (position != Vector3.zero)
+        {
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(position), Time.deltaTime * 10);
         }
-        
+
         // Verifica se o personagem está no chão
         isGrounded = Physics.CheckSphere(foot.position, 0.3f, colisaoLayer);
+        animator.SetBool("jump", !isGrounded);
 
         // Código do pulo
-        if (Input.GetButtonDown("Jump") && isGrounded) // Se o personagem estiver no chão e o botão de pulo for pressionado
+        if (Input.GetButtonDown("Jump") && isGrounded)
         {
             gravity = jumpForce;
-            timeInAir = 0f; // Reseta o tempo no ar ao pular
+            timeInAir = 0f;
         }
 
-        // Verifica se o jogador pressionou o botão de pulo duas vezes rapidamente
+        // Verifica duplo clique para ativar a habilidade STOMP
         if (Input.GetButtonDown("Jump"))
         {
             if (Time.time - lastJumpTime < doubleClickTime)
             {
-                // Ativa a habilidade de STOMP se o jogador pressionar o botão de pulo duas vezes rapidamente
                 ActivateStompAbility();
             }
             lastJumpTime = Time.time;
         }
 
-        // Atualiza a gravidade: aplica aceleração para simular efeito de queda
-        if (gravity > -10f){
+        // Atualiza a gravidade
+        if (gravity > -10f)
+        {
             gravity += -25f * Time.deltaTime;
         }
         controller.Move(new Vector3(0, gravity, 0) * Time.deltaTime);
 
         // Atualiza o tempo no ar se o personagem não estiver no chão
-        if (!isGrounded){
+        if (!isGrounded)
+        {
             timeInAir += 10 * Time.deltaTime;
         }
 
-        // Atualiza a posição da câmera para seguir o jogador
+        // Atualiza a posição da câmera
         Vector3 newCameraPosition = transform.position + cameraOffset;
         MyCamera.position = newCameraPosition;
+
+        // **Lógica para colocar a mina**
+        if (canPlaceMine && Input.GetKeyDown(KeyCode.E) || canPlaceMine && Input.GetButtonDown("PlaceMine"))
+        {
+            Vector3 dropPosition = transform.position + transform.forward * 1.5f; // Coloca a mina na frente do jogador
+            mineBuffSystem.PlaceMine(dropPosition);
+        }
     }
 
     void ActivateStompAbility()
     {
         if (Time.time - lastAbilityTime >= abilityCooldown)
         {
-            // Ativa a habilidade de STOMP
             stompActivated = true;
             lastAbilityTime = Time.time;
-
-            // Adiciona a força extra da gravidade
             gravity = extraGravityForce;
         }
     }
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        // Verifica se o jogador colidiu com o chão após usar a habilidade de STOMP
         if (stompActivated && ((1 << hit.gameObject.layer) & colisaoLayer) != 0)
         {
-            // Calcula a nova escala do AreaAttack com base no tempo no ar
             float newScale = 1f + (timeInAir * scaleIncreasePerSecond);
             Vector3 areaAttackScale = new Vector3(newScale, newScale, newScale);
 
-            // Instancia a área de ataque na posição do foot com a nova escala
             GameObject areaAttackInstance = Instantiate(AreaAttack, foot.position, Quaternion.identity);
             areaAttackInstance.transform.localScale = areaAttackScale;
 
-            stompActivated = false; // Reseta a variável stompActivated
-        }
-
-        // Verifica se o jogador colidiu com um inimigo
-        if (hit.gameObject.CompareTag("Enemy"))
-        {
-            Debug.Log("Player colidiu com inimigo!");
+            stompActivated = false;
         }
     }
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("consumable1")) // Buff de velocidade
-        {
-            Destroy(other.gameObject); // Destroi o consumível
-            if (playerBuffs != null)
-            {
-                playerBuffs.ApplyBuff(BuffType.Speed, 5f, 5.0f); // Aplica o buff de velocidade
-            }
-        }
-        else if (other.gameObject.CompareTag("consumable2")) // Buff de dano
+        if (other.gameObject.CompareTag("consumable1"))
         {
             Destroy(other.gameObject);
             if (playerBuffs != null)
             {
-                playerBuffs.ApplyBuff(BuffType.Damage, 5f, 5f); // Aplica o buff de dano
+                playerBuffs.ApplyBuff(BuffType.Speed, 5f, 5.0f);
             }
         }
-        else if (other.gameObject.CompareTag("consumable4")) // Buff de invulnerabilidade
+        else if (other.gameObject.CompareTag("consumable2"))
         {
             Destroy(other.gameObject);
             if (playerBuffs != null)
             {
-                playerBuffs.ApplyBuff(BuffType.Invulnerability, 5f); // Jogador fica invulnerável por 5 segundos
+                playerBuffs.ApplyBuff(BuffType.Damage, 5f, 5f);
+            }
+        }
+        else if (other.gameObject.CompareTag("consumable4"))
+        {
+            Destroy(other.gameObject);
+            if (playerBuffs != null)
+            {
+                playerBuffs.ApplyBuff(BuffType.Invulnerability, 5f);
             }
         }
     }
 
-    void OnDrawGizmos() // desenha uma esfera para representar o pé do jogador
+    public void EnableMinePlacement(PlayerBuffs buffSystem)
     {
-        Gizmos.color = Color.red; // cor vermelha
-        Gizmos.DrawWireSphere(foot.position, 0.3f); // desenha uma esfera na posição do foot com raio 0.3
+        canPlaceMine = true;
+        mineBuffSystem = buffSystem;
+        Debug.Log("Você pode colocar minas! Pressione 'E' para colocar.");
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(foot.position, 0.3f);
     }
 }

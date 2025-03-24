@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 8802568306575360354}
   - component: {fileID: 6763045176581301338}
   - component: {fileID: 3755708821854892278}
-  - component: {fileID: 4427915207480481029}
   - component: {fileID: -1052190986810376094}
   m_Layer: 0
   m_Name: backpack
@@ -110,21 +109,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &4427915207480481029
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 534128245748221230}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2bbe19f454eaebd4e9c8a7b26e12ce99, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  alturaFlutuacao: 0.5
-  velocidadeFlutuacao: 2
-  velocidadeRotacao: 50
 --- !u!114 &-1052190986810376094
 MonoBehaviour:
   m_ObjectHideFlags: 0

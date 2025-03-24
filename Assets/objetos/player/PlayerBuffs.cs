@@ -4,10 +4,11 @@ using System.Collections.Generic;
 public class PlayerBuffs : MonoBehaviour
 {
     private PlayerController1 playerController1;
-    private EnemyController enemyController;
+    private EnemyPai enemyController;
     private LifeController lifeController;
 
-    public GameObject consumable3buffPrefab; // Prefab do consumível 3
+    public GameObject consumable3buffPrefab;
+    public GameObject minePrefab;
 
     private float originalSpeed;
     private float originalDamage;
@@ -16,14 +17,17 @@ public class PlayerBuffs : MonoBehaviour
     private float activeDamageMultiplier = 1f;
     public float CurrentDamage { get { return originalDamage * activeDamageMultiplier; } }
 
-
     private List<Buff> activeBuffs = new List<Buff>();
+
+    private int mineUses = 0; // Agora começa em 0 e acumula
+
+    public int usesmines = 2;
 
     void Start()
     {
         playerController1 = GetComponent<PlayerController1>();
         lifeController = GetComponent<LifeController>();
-        enemyController = FindFirstObjectByType<EnemyController>();
+        enemyController = FindFirstObjectByType<EnemyPai>();
 
         if (playerController1 != null)
         {
@@ -31,7 +35,7 @@ public class PlayerBuffs : MonoBehaviour
         }
         if (enemyController != null)
         {
-            originalDamage = enemyController.danobulletbase;
+            originalDamage = enemyController.danoBullet;
         }
     }
 
@@ -40,7 +44,6 @@ public class PlayerBuffs : MonoBehaviour
         float currentTime = Time.time;
         activeBuffs.RemoveAll(buff => buff.ExpireTime <= currentTime);
 
-        // Aplica a velocidade apenas se houver buff ativo
         float speedBuff = 0f;
         float damageBuffMultiplier = 1f;
 
@@ -50,19 +53,16 @@ public class PlayerBuffs : MonoBehaviour
             if (buff.Type == BuffType.Damage) damageBuffMultiplier = activeDamageMultiplier;
         }
 
-        // Atualiza a velocidade corretamente
         if (playerController1 != null)
         {
             playerController1.speed = originalSpeed + speedBuff;
         }
 
-        // Atualiza o dano corretamente
         if (enemyController != null)
         {
-            enemyController.danobulletbase = originalDamage * damageBuffMultiplier;
+            enemyController.danoBullet = originalDamage * damageBuffMultiplier;
         }
     }
-
 
     public void ApplyBuff(BuffType type, float duration, float value = 0)
     {
@@ -75,12 +75,11 @@ public class PlayerBuffs : MonoBehaviour
             playerController1.speed += activeSpeedBonus;
             Debug.Log($"Buff de Velocidade Ativado! Nova velocidade: {playerController1.speed}");
         }
-
         else if (type == BuffType.Damage && enemyController != null)  
         {
             activeDamageMultiplier = value;
-            enemyController.danobulletbase = originalDamage * activeDamageMultiplier;
-            Debug.Log($"Buff de Dano Ativado! Novo dano: {enemyController.danobulletbase}");
+            enemyController.danoBullet = originalDamage * activeDamageMultiplier;
+            Debug.Log($"Buff de Dano Ativado! Novo dano: {enemyController.danoBullet}");
         }
         else if (type == BuffType.Invulnerability && lifeController != null)
         {
@@ -102,9 +101,36 @@ public class PlayerBuffs : MonoBehaviour
             Destroy(other.gameObject);
             ApplyBuff(BuffType.Invulnerability, 5f);
         }
+        else if (other.gameObject.CompareTag("consumable5")) 
+        {
+            Destroy(other.gameObject);
+            mineUses += usesmines; // Agora adiciona mais 2 minas ao total
+            ActivateMinePlacement();
+            Debug.Log($"Pegou um Consumable5! Minas disponíveis: {mineUses}");
+        }
+    }
+
+    void ActivateMinePlacement()
+    {
+        Debug.Log("Pressione 'E' para colocar uma mina.");
+        playerController1.EnableMinePlacement(this);
+    }
+
+    public void PlaceMine(Vector3 position)
+    {
+        if (mineUses > 0)
+        {
+            Instantiate(minePrefab, position, Quaternion.identity);
+            mineUses--;
+            Debug.Log($"Mina colocada! Restantes: {mineUses}");
+
+            if (mineUses <= 0)
+            {
+                Debug.Log("Acabaram suas minas! Pegue mais consumables5 para ganhar mais.");
+            }
+        }
     }
 }
-
 
 public enum BuffType { Speed, Damage, Invulnerability }
 

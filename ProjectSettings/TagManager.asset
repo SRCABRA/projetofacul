@@ -16,6 +16,7 @@ TagManager:
   - backpack
   - consumable3
   - consumable4
+  - consumable5
   layers:
   - Default
   - TransparentFX
@@ -25,7 +26,7 @@ TagManager:
   - UI
   - Player
   - enemy
-  - 
+  - obstacleMask
   - 
   - 
   - 
