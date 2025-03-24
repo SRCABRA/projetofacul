@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-using UnityEngine.SceneManagement; // Necessário para reiniciar a cena
+using UnityEngine.SceneManagement; // Para reiniciar a cena
 
 public class LifeController : MonoBehaviour
 {
@@ -9,6 +9,7 @@ public class LifeController : MonoBehaviour
     private Transform[] pizzaBoxes;
     private Vector3[] originalPositions;
     private bool isRestarting = false; // Evita múltiplas chamadas de reinício
+    public Transform pizzaGhost; // Referência à pizza fantasma
 
     void Start()
     {
@@ -22,11 +23,19 @@ public class LifeController : MonoBehaviour
                 originalPositions[i] = pizzaBoxes[i].localPosition;
             }
         }
+
+        // Garante que a pizza fantasma nunca seja removida
+        if (pizzaGhost != null && !pizzaGhost.CompareTag("PizzaBox"))
+        {
+            pizzaGhost.SetParent(transform);
+            pizzaGhost.localPosition = Vector3.zero; // Mantém no lugar
+            pizzaGhost.gameObject.SetActive(false); // Invisível
+        }
     }
 
     void Update()
     {
-        CheckGameOver(); // Verifica constantemente se todas as caixas foram destruídas ou o jogador foi eliminado
+        CheckGameOver(); // Verifica constantemente se todas as caixas foram destruídas
     }
 
     void OnCollisionEnter(Collision collision)
@@ -42,15 +51,17 @@ public class LifeController : MonoBehaviour
     {
         foreach (Transform child in transform)
         {
-            if (child.CompareTag("PizzaBox"))
+            if (child.CompareTag("PizzaBox") && child != pizzaGhost) // Não joga a pizza fantasma
             {
                 Rigidbody rb = child.gameObject.AddComponent<Rigidbody>();
                 rb.AddForce(transform.forward * 10f, ForceMode.Impulse);
                 rb.constraints = RigidbodyConstraints.FreezeRotation;
                 child.SetParent(null);
-                break;
+                return;
             }
         }
+
+        Debug.Log("Nenhuma pizza disponível para jogar!");
     }
 
     public void RestorePizzaBox(Transform pizzaBox)
@@ -62,8 +73,14 @@ public class LifeController : MonoBehaviour
                 pizzaBox.SetParent(transform);
                 pizzaBox.localPosition = originalPositions[i];
                 Destroy(pizzaBox.GetComponent<Rigidbody>());
-                break;
+                return;
             }
+        }
+
+        // Se todas as pizzas foram perdidas, ativa a pizza fantasma
+        if (pizzaGhost != null && transform.childCount == 0)
+        {
+            pizzaGhost.gameObject.SetActive(true);
         }
     }
 
@@ -81,9 +98,9 @@ public class LifeController : MonoBehaviour
 
     void CheckGameOver()
     {
-        // Verifica se todas as caixas de pizza foram destruídas
+        // Verifica se todas as caixas de pizza foram destruídas, ignorando a pizza fantasma
         GameObject[] remainingBoxes = GameObject.FindGameObjectsWithTag("PizzaBox");
-        bool allBoxesDestroyed = remainingBoxes.Length == 0;
+        bool allBoxesDestroyed = remainingBoxes.Length == 0 || (remainingBoxes.Length == 1 && remainingBoxes[0] == pizzaGhost.gameObject);
 
         // Verifica se o jogador ainda existe
         bool playerDestroyed = GameObject.FindGameObjectWithTag("Player") == null;

@@ -4,10 +4,11 @@ using System.Collections.Generic;
 public class PlayerBuffs : MonoBehaviour
 {
     private PlayerController1 playerController1;
-    private EnemyPai enemyController; // Alterado para EnemyPai
+    private EnemyPai enemyController;
     private LifeController lifeController;
 
     public GameObject consumable3buffPrefab;
+    public GameObject minePrefab;
 
     private float originalSpeed;
     private float originalDamage;
@@ -18,11 +19,15 @@ public class PlayerBuffs : MonoBehaviour
 
     private List<Buff> activeBuffs = new List<Buff>();
 
+    private int mineUses = 0; // Agora começa em 0 e acumula
+
+    public int usesmines = 2;
+
     void Start()
     {
         playerController1 = GetComponent<PlayerController1>();
         lifeController = GetComponent<LifeController>();
-        enemyController = FindFirstObjectByType<EnemyPai>(); // Alterado para EnemyPai
+        enemyController = FindFirstObjectByType<EnemyPai>();
 
         if (playerController1 != null)
         {
@@ -30,7 +35,7 @@ public class PlayerBuffs : MonoBehaviour
         }
         if (enemyController != null)
         {
-            originalDamage = enemyController.danoBullet; // Usando danoBullet da classe EnemyPai
+            originalDamage = enemyController.danoBullet;
         }
     }
 
@@ -95,6 +100,34 @@ public class PlayerBuffs : MonoBehaviour
         {
             Destroy(other.gameObject);
             ApplyBuff(BuffType.Invulnerability, 5f);
+        }
+        else if (other.gameObject.CompareTag("consumable5")) 
+        {
+            Destroy(other.gameObject);
+            mineUses += usesmines; // Agora adiciona mais 2 minas ao total
+            ActivateMinePlacement();
+            Debug.Log($"Pegou um Consumable5! Minas disponíveis: {mineUses}");
+        }
+    }
+
+    void ActivateMinePlacement()
+    {
+        Debug.Log("Pressione 'E' para colocar uma mina.");
+        playerController1.EnableMinePlacement(this);
+    }
+
+    public void PlaceMine(Vector3 position)
+    {
+        if (mineUses > 0)
+        {
+            Instantiate(minePrefab, position, Quaternion.identity);
+            mineUses--;
+            Debug.Log($"Mina colocada! Restantes: {mineUses}");
+
+            if (mineUses <= 0)
+            {
+                Debug.Log("Acabaram suas minas! Pegue mais consumables5 para ganhar mais.");
+            }
         }
     }
 }

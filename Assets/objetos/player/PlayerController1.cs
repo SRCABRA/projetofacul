@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class PlayerController1 : MonoBehaviour
 {
-    // Variáveis de movimentação e física
     public float speed = 15.0f;
     public float gravity = -10f;
     public float jumpForce = 5f;
@@ -15,7 +14,6 @@ public class PlayerController1 : MonoBehaviour
     private CharacterController controller;
     public Vector3 cameraOffset;
 
-    // Variáveis do STOMP
     public float abilityActivationHeight = 5.0f;
     public float extraGravityForce = -20f;
     public float abilityCooldown = 5f;
@@ -23,18 +21,17 @@ public class PlayerController1 : MonoBehaviour
     private float lastAbilityTime = -10f;
     private bool stompActivated = false;
 
-    // Detecção de duplo clique
     private float lastJumpTime = 0f;
     private float doubleClickTime = 0.3f;
 
-    // Cálculo da escala do AreaAttack
     private float timeInAir = 0f;
     public float scaleIncreasePerSecond = 0.1f;
 
     private PlayerBuffs playerBuffs;
-
-    // Referência para o Animator dentro do objeto filho "Idle"
     private Animator animator;
+
+    private bool canPlaceMine = false;
+    private PlayerBuffs mineBuffSystem;
 
     void Start()
     {
@@ -42,8 +39,6 @@ public class PlayerController1 : MonoBehaviour
         controller = GetComponent<CharacterController>();
         MyCamera = Camera.main.transform;
         cameraOffset = MyCamera.position - transform.position;
-
-        // Procura o Animator no objeto filho "Idle"
         animator = GetComponentInChildren<Animator>();
     }
 
@@ -59,13 +54,9 @@ public class PlayerController1 : MonoBehaviour
         // Movimenta o personagem
         controller.Move(position * speed * Time.deltaTime);
 
-        // Verifica a velocidade atual do jogador
-        float currentSpeed = position.magnitude;
-
-        // Atualiza o Animator com a velocidade para alternar entre Idle e Running
+        // Atualiza animações
         animator.SetBool("move", position != Vector3.zero);
         animator.SetBool("idle", position == Vector3.zero);
-        
 
         // Rotaciona o personagem na direção do movimento
         if (position != Vector3.zero)
@@ -110,6 +101,13 @@ public class PlayerController1 : MonoBehaviour
         // Atualiza a posição da câmera
         Vector3 newCameraPosition = transform.position + cameraOffset;
         MyCamera.position = newCameraPosition;
+
+        // **Lógica para colocar a mina**
+        if (canPlaceMine && Input.GetKeyDown(KeyCode.E) || canPlaceMine && Input.GetButtonDown("PlaceMine"))
+        {
+            Vector3 dropPosition = transform.position + transform.forward * 1.5f; // Coloca a mina na frente do jogador
+            mineBuffSystem.PlaceMine(dropPosition);
+        }
     }
 
     void ActivateStompAbility()
@@ -124,7 +122,6 @@ public class PlayerController1 : MonoBehaviour
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        // Verifica se o jogador colidiu com o chão após usar o STOMP
         if (stompActivated && ((1 << hit.gameObject.layer) & colisaoLayer) != 0)
         {
             float newScale = 1f + (timeInAir * scaleIncreasePerSecond);
@@ -165,10 +162,16 @@ public class PlayerController1 : MonoBehaviour
         }
     }
 
+    public void EnableMinePlacement(PlayerBuffs buffSystem)
+    {
+        canPlaceMine = true;
+        mineBuffSystem = buffSystem;
+        Debug.Log("Você pode colocar minas! Pressione 'E' para colocar.");
+    }
+
     void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(foot.position, 0.3f);
     }
 }
-    

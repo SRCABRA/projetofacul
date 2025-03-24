@@ -1,9 +1,9 @@
 using UnityEngine;
 
-public class ColetavelFlutuante : MonoBehaviour
+public class ItemController : MonoBehaviour
 {
-    public float alturaFlutuacao = 0.5f; // Altura da flutuação
-    public float velocidadeFlutuacao = 2f; // Velocidade do efeito de flutuação
+    public float alturaFlutuacao = 0.5f; // Altura da flutuação acima do chão
+    public float velocidadeFlutuacao = 2f; // Velocidade da flutuação
     public float velocidadeRotacao = 50f; // Velocidade de rotação
 
     private bool ativado = false;
@@ -11,7 +11,8 @@ public class ColetavelFlutuante : MonoBehaviour
 
     void Start()
     {
-        posicaoInicial = transform.position;
+        // Se o objeto já estiver no chão ao iniciar, ajusta a altura correta
+        AjustarAlturaAcimaDoChao();
     }
 
     void Update()
@@ -32,8 +33,18 @@ public class ColetavelFlutuante : MonoBehaviour
         if (other.CompareTag("chao") && !ativado)
         {
             ativado = true;
-            posicaoInicial = transform.position;
+            AjustarAlturaAcimaDoChao();
         }
     }
 
+    void AjustarAlturaAcimaDoChao()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, Mathf.Infinity))
+        {
+            // Garante que o objeto fique na altura correta acima do chão
+            transform.position = hit.point + new Vector3(0, alturaFlutuacao, 0);
+            posicaoInicial = transform.position;
+        }
+    }
 }

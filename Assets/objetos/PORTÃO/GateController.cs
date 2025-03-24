@@ -5,6 +5,8 @@ public class BarrierController : MonoBehaviour
     public int requiredEnemiesDefeated = 5; // Número necessário de inimigos mortos
     public float descentSpeed = 2f; // Velocidade de descida da barreira
     public float descentHeight = 3f; // Distância que a barreira desce
+    public float shakeIntensity = 0.2f; // Intensidade inicial do tremor
+    public float shakeDamping = 0.05f; // Redução gradual do tremor
     public BarrierController previousBarrier; // Referência ao portão anterior
     
     private int totalEnemies = -1; // Inicializado como -1 para indicar que ainda não foi definido
@@ -40,7 +42,19 @@ public class BarrierController : MonoBehaviour
 
         if (isOpening)
         {
-            transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * descentSpeed);
+            // Faz a barreira descer
+            transform.position = Vector3.MoveTowards(transform.position, targetPosition, Time.deltaTime * descentSpeed);
+
+            // Aplica o efeito de tremor
+            if (shakeIntensity > 0)
+            {
+                float shakeX = Random.Range(-shakeIntensity, shakeIntensity);
+                float shakeY = Random.Range(-shakeIntensity, shakeIntensity);
+                transform.position += new Vector3(shakeX, shakeY, 0);
+
+                // Diminui gradualmente a intensidade do tremor
+                shakeIntensity -= shakeDamping * Time.deltaTime;
+            }
         }
     }
 }
