@@ -8,6 +8,7 @@ public class BulletEnemyController : MonoBehaviour
     void Start()
     {
         SetInitialDirection();
+        Destroy(gameObject, 200);
     }
 
     void Update()
@@ -27,6 +28,7 @@ public class BulletEnemyController : MonoBehaviour
         }
         else
         {
+            Debug.Log("não foi encontrado");
             Destroy(gameObject); // Se não tem player, destrói a bala
         }
     }
@@ -35,7 +37,18 @@ public class BulletEnemyController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            Destroy(gameObject); // Destroi a bala ao colidir
+            Debug.Log("colidiu com o player (Collision)");
+            Destroy(gameObject);
         }
     }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            Debug.Log("colidiu com o player (Trigger)");
+            Destroy(gameObject);
+        }
+    }
+
 }

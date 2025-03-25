@@ -8,6 +8,8 @@ public class TurretController : EnemyPai
     public float fireRate = 4f; // Tempo entre os disparos
     private float fireTimer = 0f; // Temporizador interno
 
+    public GameObject explosionEffect; // Prefab da explosão
+
     protected override void Start()
     {
         base.Start();
@@ -25,6 +27,15 @@ public class TurretController : EnemyPai
     protected override void Update()
     {
         base.Update();
+        // Atualiza o temporizador
+        fireTimer += Time.deltaTime;
+
+        // Se passou o tempo necessário, dispara
+        if (fireTimer >= fireRate)
+        {
+            Shoot(); // Chama o método de disparo
+            fireTimer = 0f; // Reseta o temporizador
+        }
     }
     // Método que dispara a BulletEnemy
     void Shoot()
@@ -33,5 +44,14 @@ public class TurretController : EnemyPai
         {
             Instantiate(bulletPrefab, firePoint.position, firePoint.rotation); // Cria a bala
         }
+    }
+
+        protected override void Drop()
+    {
+        if (explosionEffect != null)
+        {
+            Instantiate(explosionEffect, transform.position, Quaternion.identity);
+        }
+        base.Drop(); // Chama o método Drop da classe EnemyPai para destruir a torreta
     }
 }

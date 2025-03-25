@@ -174,3 +174,4 @@ MonoBehaviour:
   radius: 40
   pullForce: 50
   effectDuration: 2
+  blackrole: {fileID: 1944646428925954, guid: d92be02a90149e64d94ca3a2f20cd645, type: 3}

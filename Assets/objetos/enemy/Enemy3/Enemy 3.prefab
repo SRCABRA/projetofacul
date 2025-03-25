@@ -67,8 +67,9 @@ GameObject:
   - component: {fileID: 7037221077291538860}
   - component: {fileID: -5366520834840573160}
   - component: {fileID: 7561143976102276269}
+  - component: {fileID: -5010469590543001024}
   m_Layer: 7
-  m_Name: Enemy
+  m_Name: Enemy 3
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -84,7 +85,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 6.1236863, y: 1.71, z: 6.07}
-  m_LocalScale: {x: 1.19, y: 1.19, z: 1.19}
+  m_LocalScale: {x: 2.03, y: 2.03, z: 2.03}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 3760556893700618485}
@@ -178,14 +179,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b81319862760b342aa1861054901d85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 8858947744672327354, guid: 5b65f6ceec18e52408b819782b6f2b05, type: 3}
-  target: {fileID: 1681323430697203696, guid: 233f50d8ac2b4e64483dbab2322f70af, type: 3}
-  life: 10
-  speed: 7
-  viewDistance: 50
-  danobulletbase: 2
+  life: 200
+  danoBullet: 4
   danoAreaAttack: 6
   danoBackpack: 3
+  player: {fileID: 8858947744672327354, guid: 5b65f6ceec18e52408b819782b6f2b05, type: 3}
+  target: {fileID: 1681323430697203696, guid: 233f50d8ac2b4e64483dbab2322f70af, type: 3}
+  speed: 2
+  viewDistance: 50
   pizzaBoxPrefab: {fileID: 1589319413836369823, guid: 8d30b3cf2cc684642b1e65e3ee1eebcb, type: 3}
   consumable1Prefab: {fileID: 534128245748221230, guid: 72f8fe7bbf06f9b4ca3c0159a474b33b, type: 3}
   consumable2Prefab: {fileID: 534128245748221230, guid: 06c0be94d3c2e2f47938da9382d38df4, type: 3}
@@ -220,3 +221,16 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
+--- !u!114 &-5010469590543001024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5515660051657388805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e658aa681924a5f41a445f78e19b1f2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  deathEffectPrefab: {fileID: 1277154925287174, guid: 3b517eddec185dd4a830743a742ad00b, type: 3}
