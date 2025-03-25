@@ -65,10 +65,11 @@ GameObject:
   - component: {fileID: 514839322276104600}
   - component: {fileID: 5526708340928710958}
   - component: {fileID: 7037221077291538860}
+  - component: {fileID: -5366520834840573160}
   - component: {fileID: 7561143976102276269}
-  - component: {fileID: 1547867445782317888}
+  - component: {fileID: 5775360684997588664}
   m_Layer: 7
-  m_Name: Enemy 2
+  m_Name: Enemy
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -121,7 +122,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 17ae16865a704144dbbbca90a3a365e6, type: 2}
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -166,6 +167,33 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-5366520834840573160
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5515660051657388805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b81319862760b342aa1861054901d85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  life: 10
+  danoBullet: 4
+  danoAreaAttack: 6
+  danoBackpack: 3
+  player: {fileID: 8858947744672327354, guid: 5b65f6ceec18e52408b819782b6f2b05, type: 3}
+  target: {fileID: 1681323430697203696, guid: 233f50d8ac2b4e64483dbab2322f70af, type: 3}
+  speed: 7
+  viewDistance: 50
+  pizzaBoxPrefab: {fileID: 1589319413836369823, guid: 8d30b3cf2cc684642b1e65e3ee1eebcb, type: 3}
+  consumable1Prefab: {fileID: 534128245748221230, guid: 72f8fe7bbf06f9b4ca3c0159a474b33b, type: 3}
+  consumable2Prefab: {fileID: 534128245748221230, guid: 06c0be94d3c2e2f47938da9382d38df4, type: 3}
+  consumable4Prefab: {fileID: 534128245748221230, guid: 4754d26da65b3c54faa7b1bb289334f2, type: 3}
+  consumable1DropChance: 0.5
+  consumable2DropChance: 0.5
+  consumable4DropChance: 0.1
 --- !u!54 &7561143976102276269
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -193,7 +221,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
---- !u!114 &1547867445782317888
+--- !u!114 &5775360684997588664
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -202,11 +230,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5515660051657388805}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d160eb5c99a9d5447b2fd2430cf397aa, type: 3}
+  m_Script: {fileID: 11500000, guid: e658aa681924a5f41a445f78e19b1f2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waypoints:
-  - {fileID: 0}
-  - {fileID: 0}
-  speed: 2
-  turretPrefab: {fileID: 4972133487427751404, guid: 3aba445a78eda6d4ba9aa4d7e36a0364, type: 3}
+  deathEffectPrefab: {fileID: 1277154925287174, guid: 3b517eddec185dd4a830743a742ad00b, type: 3}

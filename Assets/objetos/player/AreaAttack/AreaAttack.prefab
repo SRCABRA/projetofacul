@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55ea55bbb4a535549865a0dece31b71b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timerDuration: 0.3
+  timerDuration: 0.9
 --- !u!1 &1466291228908317747
 GameObject:
   m_ObjectHideFlags: 0
@@ -149,7 +149,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 64
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -223,6 +223,10 @@ PrefabInstance:
       propertyPath: m_Materials.Array.size
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 199843303328931898, guid: 05f7c156786bd024e8da3bb1a4b8aa09, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 0141a51feb93adf48b3848f17a03884e, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

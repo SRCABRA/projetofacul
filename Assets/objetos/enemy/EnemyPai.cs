@@ -28,30 +28,37 @@ public class EnemyPai : MonoBehaviour
     {
         if (life <= 0)
         {
+            Debug.Log("torreta destruida");
             Drop();
             Destroy(gameObject);
         }
     }
 
-    protected virtual void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("AreaAttack") && !isJumping)
-        {
-            isJumping = true;
-            life -= danoAreaAttack;
-            JumpEffect();
-        }
-        else if (collision.gameObject.CompareTag("Bullet"))
-        {
-            life -= danoBullet;
-        }
-        else if (collision.gameObject.CompareTag("backpack"))
-        {
-            life -= danoBackpack;
-        }
+protected virtual void OnCollisionEnter(Collision collision)
+{
+    Debug.Log($"Colisão com: {collision.gameObject.name}, Tag: {collision.gameObject.tag}");
 
-        FlashRed();
+    if (collision.gameObject.CompareTag("AreaAttack") && !isJumping)
+    {
+        isJumping = true;
+        life -= danoAreaAttack;
+        Debug.Log($"Dano de área recebido! Vida restante: {life}");
+        JumpEffect();
     }
+    else if (collision.gameObject.CompareTag("Bullet"))
+    {
+        life -= danoBullet;
+        Debug.Log($"Atingido por Bullet! Vida restante: {life}");
+    }
+    else if (collision.gameObject.CompareTag("backpack"))
+    {
+        life -= danoBackpack;
+        Debug.Log($"Atingido por Backpack! Vida restante: {life}");
+    }
+
+    FlashRed();
+}
+
 
     protected virtual void OnCollisionExit(Collision collision)
     {

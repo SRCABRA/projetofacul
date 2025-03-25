@@ -7,11 +7,14 @@ public class MineBlackHoleController : MonoBehaviour
     public float pullForce = 100f;     // Força de atração
     public float effectDuration = 2f; // Tempo de duração do efeito
 
+    public GameObject blackrole;
+
     void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Enemy"))
         {
             StartCoroutine(PullEnemies());
+            Instantiate(blackrole, gameObject.transform);
         }
     }
 
