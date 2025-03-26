@@ -43,12 +43,12 @@ GameObject:
   - component: {fileID: 2769397064666577260}
   - component: {fileID: 7308749263845294879}
   - component: {fileID: 859673860408650699}
+  - component: {fileID: 422959661772012469}
+  - component: {fileID: 7164700128230560242}
   - component: {fileID: 6062739829101101180}
   - component: {fileID: 5610679156239945332}
-  - component: {fileID: 422959661772012469}
   - component: {fileID: 7985764634047048799}
   - component: {fileID: 8548845813031383526}
-  - component: {fileID: 7164700128230560242}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -142,6 +142,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d46871ca0066d0442a79188f4badb01f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableMovement: 1
+  enableJump: 1
+  enableStomp: 1
+  enableCameraFollow: 1
+  enableMinePlacement: 1
+  enableBuffSystem: 1
+  enableAnimations: 1
   speed: 11
   gravity: -2
   jumpForce: 10
@@ -155,6 +162,40 @@ MonoBehaviour:
   abilityCooldown: 2
   AreaAttack: {fileID: 56288935569468523, guid: 7b728ef1e955e3a42b3339014e339493, type: 3}
   scaleIncreasePerSecond: 1
+--- !u!114 &422959661772012469
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7254659033117918914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e8d5fc8a7cfbd040a269420adc2f347, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableSpeedBuff: 1
+  enableDamageBuff: 1
+  enableInvulnerabilityBuff: 1
+  enableMineSystem: 1
+  enableBuffExpiration: 1
+  consumable3buffPrefab: {fileID: 0}
+  minePrefab: {fileID: 0}
+  usesmines: 2
+--- !u!114 &7164700128230560242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7254659033117918914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34a44c9b3174e5f4da5c0df5dca05afc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dustPrefab: {fileID: 7962681502467013618, guid: 11c55046e50d8054d9a853d03f50ef18, type: 3}
+  spawnRate: 0.05
 --- !u!114 &6062739829101101180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -185,21 +226,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   invulnerabilityDuration: 0.5
---- !u!114 &422959661772012469
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7254659033117918914}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e8d5fc8a7cfbd040a269420adc2f347, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  consumable3buffPrefab: {fileID: 0}
-  minePrefab: {fileID: 0}
-  usesmines: 2
+  pizzaGhost: {fileID: 0}
 --- !u!143 &7985764634047048799
 CharacterController:
   m_ObjectHideFlags: 0
@@ -252,20 +279,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 122
   m_CollisionDetection: 0
---- !u!114 &7164700128230560242
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7254659033117918914}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 34a44c9b3174e5f4da5c0df5dca05afc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dustPrefab: {fileID: 7962681502467013618, guid: 11c55046e50d8054d9a853d03f50ef18, type: 3}
-  spawnRate: 0.05
 --- !u!1001 &1703645641538969494
 PrefabInstance:
   m_ObjectHideFlags: 0

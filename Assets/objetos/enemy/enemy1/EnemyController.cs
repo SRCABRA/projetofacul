@@ -2,37 +2,49 @@ using UnityEngine;
 
 public class EnemyController : EnemyPai
 {
+    [Header("Configurações do Inimigo")]
+    public bool enableMovement = true;
+    public bool enableTargeting = true;
+    public bool enableItemDrop = true;
+
+    [Header("Referências")]
     public Transform player;
     public Transform target;
-    public float speed = 5f;
-    public float viewDistance = 40f;
 
-    public GameObject pizzaBoxPrefab;
-    public GameObject consumable1Prefab;
-    public GameObject consumable2Prefab;
-    public GameObject consumable4Prefab;
+    [Header("Configuração de Movimento")]
+    [SerializeField] private float speed = 5f;
+    [SerializeField] private float viewDistance = 40f;
 
-    [Range(0f, 1f)] public float consumable1DropChance = 0.3f;
-    [Range(0f, 1f)] public float consumable2DropChance = 0.3f;
-    [Range(0f, 1f)] public float consumable4DropChance = 0.1f;
+    [Header("Itens para Drop")]
+    [SerializeField] private GameObject pizzaBoxPrefab;
+    [SerializeField] private GameObject consumable1Prefab;
+    [SerializeField] private GameObject consumable2Prefab;
+    [SerializeField] private GameObject consumable4Prefab;
+
+    [Header("Chance de Drop")]
+    [Range(0f, 1f)] [SerializeField] private float consumable1DropChance = 0.3f;
+    [Range(0f, 1f)] [SerializeField] private float consumable2DropChance = 0.3f;
+    [Range(0f, 1f)] [SerializeField] private float consumable4DropChance = 0.1f;
 
     private GameObject carriedPizzaBox;
 
     protected override void Start()
     {
-        base.Start(); // Chama o Start() do EnemyPai
-        ChooseTarget();
+        base.Start();
+        if (enableTargeting) ChooseTarget();
     }
 
     protected override void Update()
     {
-        base.Update(); // Chama o Update() do EnemyPai
-        ChooseTarget();
-        MoveTowardsTarget();
+        base.Update();
+        if (enableTargeting) ChooseTarget();
+        if (enableMovement) MoveTowardsTarget();
     }
 
     protected override void Drop()
     {
+        if (!enableItemDrop) return;
+
         if (carriedPizzaBox != null)
         {
             carriedPizzaBox.transform.SetParent(null);
@@ -61,10 +73,7 @@ public class EnemyController : EnemyPai
     private void ChooseTarget()
     {
         FindClosestObject();
-        if (target == null)
-        {
-            FindClosestPlayer();
-        }
+        if (target == null) FindClosestPlayer();
     }
 
     private void FindClosestPlayer()

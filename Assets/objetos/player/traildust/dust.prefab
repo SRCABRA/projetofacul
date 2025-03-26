@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7681397313833265568}
   - component: {fileID: 7739934899572053263}
   - component: {fileID: 6695858410291145145}
+  - component: {fileID: -7816573990540973514}
   m_Layer: 0
   m_Name: dust
   m_TagString: Untagged
@@ -102,6 +103,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startBig: 1
   riseSpeed: 0.5
+--- !u!114 &-7816573990540973514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7962681502467013618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a71e5cef0d4c7a499c99179464504b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &6655977904551048940
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -165,6 +178,10 @@ PrefabInstance:
     - target: {fileID: 4772118390566308, guid: 2397083e876e5b1408fcc1333f50c082, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 198006683868144142, guid: 2397083e876e5b1408fcc1333f50c082, type: 3}
+      propertyPath: stopAction
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
