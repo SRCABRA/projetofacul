@@ -45,7 +45,6 @@ public class EnemyPai : MonoBehaviour
     {
         if (!enableDamage) return;
 
-        Debug.Log($"Colisão com: {collision.gameObject.name}, Tag: {collision.gameObject.tag}");
 
         if (collision.gameObject.CompareTag("AreaAttack") && !isJumping)
         {
