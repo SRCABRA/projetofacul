@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections;
-using UnityEngine.SceneManagement; // Para reiniciar a cena
 
 public class LifeController : MonoBehaviour
 {
@@ -8,7 +7,6 @@ public class LifeController : MonoBehaviour
     public bool enableInvulnerability = true;
     public bool enablePizzaThrowing = true;
     public bool enableGameOverCheck = true;
-    public bool enableGameRestart = true;
 
     [Header("Configurações de Invulnerabilidade")]
     [SerializeField] private float invulnerabilityDuration = 2f;
@@ -16,9 +14,11 @@ public class LifeController : MonoBehaviour
 
     [Header("Referências")]
     [SerializeField] private Transform pizzaGhost;
+    [SerializeField] private GameObject deathScreen; // Painel da tela de morte
+
     private Transform[] pizzaBoxes;
     private Vector3[] originalPositions;
-    private bool isRestarting = false; // Evita múltiplas chamadas de reinício
+    private bool isGameOver = false; // Evita múltiplas execuções do Game Over
 
     void Start()
     {
@@ -33,18 +33,23 @@ public class LifeController : MonoBehaviour
             }
         }
 
-        // Garante que a pizza fantasma nunca seja removida
         if (pizzaGhost != null && !pizzaGhost.CompareTag("PizzaBox"))
         {
             pizzaGhost.SetParent(transform);
             pizzaGhost.localPosition = Vector3.zero;
-            pizzaGhost.gameObject.SetActive(false); // Invisível no início
+            pizzaGhost.gameObject.SetActive(false);
+        }
+
+        // Desativa a tela de morte no início do jogo
+        if (deathScreen != null)
+        {
+            deathScreen.SetActive(false);
         }
     }
 
     void Update()
     {
-        if (enableGameOverCheck) CheckGameOver(); // Verifica constantemente se todas as caixas foram destruídas
+        if (enableGameOverCheck) CheckGameOver();
     }
 
     void OnCollisionEnter(Collision collision)
@@ -62,7 +67,7 @@ public class LifeController : MonoBehaviour
 
         foreach (Transform child in transform)
         {
-            if (child.CompareTag("PizzaBox") && child != pizzaGhost) // Não joga a pizza fantasma
+            if (child.CompareTag("PizzaBox") && child != pizzaGhost)
             {
                 Rigidbody rb = child.gameObject.AddComponent<Rigidbody>();
                 rb.AddForce(transform.forward * 10f, ForceMode.Impulse);
@@ -88,7 +93,6 @@ public class LifeController : MonoBehaviour
             }
         }
 
-        // Se todas as pizzas foram perdidas, ativa a pizza fantasma
         if (pizzaGhost != null && transform.childCount == 0)
         {
             pizzaGhost.gameObject.SetActive(true);
@@ -110,26 +114,33 @@ public class LifeController : MonoBehaviour
 
     void CheckGameOver()
     {
-        if (!enableGameOverCheck) return;
+        if (isGameOver) return;
 
-        // Verifica se todas as caixas de pizza foram destruídas, ignorando a pizza fantasma
         GameObject[] remainingBoxes = GameObject.FindGameObjectsWithTag("PizzaBox");
         bool allBoxesDestroyed = remainingBoxes.Length == 0 || (remainingBoxes.Length == 1 && remainingBoxes[0] == pizzaGhost.gameObject);
-
-        // Verifica se o jogador ainda existe
         bool playerDestroyed = GameObject.FindGameObjectWithTag("Player") == null;
 
-        if ((allBoxesDestroyed || playerDestroyed) && !isRestarting)
+        if (allBoxesDestroyed || playerDestroyed)
         {
-            isRestarting = true;
-            if (enableGameRestart) StartCoroutine(RestartGame());
+            isGameOver = true;
+            StartCoroutine(GameOverRoutine()); // Espera 2 segundos antes de ativar a tela
         }
     }
 
-    IEnumerator RestartGame()
+    IEnumerator GameOverRoutine()
     {
-        Debug.Log("Fim de jogo! Reiniciando em 2 segundos...");
-        yield return new WaitForSeconds(2f);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        Debug.Log("Game Over! Exibindo tela de morte em 2 segundos...");
+        yield return new WaitForSeconds(2f); // Aguarda 2 segundos
+
+        ShowDeathScreen(); // Agora a tela aparece depois da espera
+    }
+
+    void ShowDeathScreen()
+    {
+        Debug.Log("Exibindo tela de Game Over.");
+        if (deathScreen != null)
+        {
+            deathScreen.SetActive(true); // Ativa a tela de morte
+        }
     }
 }
