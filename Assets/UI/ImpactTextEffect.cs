@@ -11,7 +11,7 @@ public class ImpactTextEffect : MonoBehaviour
 
     [Header("Tela de Tremor")]
     public RectTransform panelTransform; // O painel que vai tremer (UI)
-    public float shakeDuration = 0.5f; // Tempo do tremor
+    public float shakeDuration = 0.2f; // Tempo do tremor (agora menor para sincronizar)
     public float shakeAmount = 10f; // Intensidade do tremor
 
     private Vector3 originalPanelPos; // Guarda a posição original do painel
@@ -24,11 +24,14 @@ public class ImpactTextEffect : MonoBehaviour
 
     IEnumerator ShowTextWithImpact()
     {
-        foreach (var word in words)
+        for (int i = 0; i < words.Length; i++)
         {
+            TextMeshProUGUI word = words[i];
             word.gameObject.SetActive(true); // Ativa a palavra
-            StartCoroutine(PanelShake()); // Inicia o tremor ao mesmo tempo
-            yield return StartCoroutine(ScaleEffect(word.transform)); // Aplica o efeito de impacto
+
+            yield return StartCoroutine(ScaleEffect(word.transform)); // 🔥 Impacta a palavra primeiro
+            yield return StartCoroutine(PanelShake()); // 🔥 Depois o tremor da tela
+            
             yield return new WaitForSeconds(delayBetweenWords); // Espera um pouco antes da próxima palavra
         }
     }
@@ -65,7 +68,7 @@ public class ImpactTextEffect : MonoBehaviour
         while (elapsed < shakeDuration)
         {
             Vector2 randomOffset = Random.insideUnitCircle * shakeAmount;
-            panelTransform.anchoredPosition = originalPanelPos + new Vector3(randomOffset.x, randomOffset.y, 0); // 🔥 Correção aqui!
+            panelTransform.anchoredPosition = originalPanelPos + new Vector3(randomOffset.x, randomOffset.y, 0);
 
             elapsed += Time.deltaTime;
             yield return null;

@@ -17,6 +17,8 @@ TagManager:
   - consumable3
   - consumable4
   - consumable5
+  - CameraNormal
+  - CameraClose
   layers:
   - Default
   - TransparentFX
