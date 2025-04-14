@@ -2,22 +2,35 @@ using UnityEngine;
 
 public class PlayerController1 : MonoBehaviour
 {
+    [Header("Configurações Gerais")]
+    public bool enableMovement = true;
+    public bool enableJump = true;
+    public bool enableStomp = true;
+    public bool enableCameraFollow = true;
+    public bool enableMinePlacement = true;
+    public bool enableBuffSystem = true;
+    public bool enableAnimations = true;
+
+    [Header("Movimentação")]
     public float speed = 15.0f;
     public float gravity = -10f;
     public float jumpForce = 5f;
+    
     private bool isGrounded;
 
+    [Header("Configurações de Detecção")]
     [SerializeField] private Transform foot;
     [SerializeField] private LayerMask colisaoLayer;
 
     private Transform MyCamera;
     private CharacterController controller;
-    public Vector3 cameraOffset;
+    [SerializeField] private Vector3 cameraOffset;
 
-    public float abilityActivationHeight = 5.0f;
-    public float extraGravityForce = -20f;
-    public float abilityCooldown = 5f;
-    public GameObject AreaAttack;
+    [Header("Habilidade Stomp")]
+    [SerializeField] private float abilityActivationHeight = 5.0f;
+    [SerializeField] private float extraGravityForce = -20f;
+    [SerializeField] private float abilityCooldown = 5f;
+    [SerializeField] private GameObject AreaAttack;
     private float lastAbilityTime = -10f;
     private bool stompActivated = false;
 
@@ -25,7 +38,7 @@ public class PlayerController1 : MonoBehaviour
     private float doubleClickTime = 0.3f;
 
     private float timeInAir = 0f;
-    public float scaleIncreasePerSecond = 0.1f;
+    [SerializeField] private float scaleIncreasePerSecond = 0.1f;
 
     private PlayerBuffs playerBuffs;
     private Animator animator;
@@ -44,39 +57,49 @@ public class PlayerController1 : MonoBehaviour
 
     void Update()
     {
-        // Captura inputs de movimentação
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-        Vector3 position = new Vector3(horizontal, 0, vertical);
-        position = MyCamera.TransformDirection(position);
-        position.y = 0f;
-
-        // Movimenta o personagem
-        controller.Move(position * speed * Time.deltaTime);
-
-        // Atualiza animações
-        animator.SetBool("move", position != Vector3.zero);
-        animator.SetBool("idle", position == Vector3.zero);
-
-        // Rotaciona o personagem na direção do movimento
-        if (position != Vector3.zero)
+        if (enableMovement)
         {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(position), Time.deltaTime * 10);
+            // Captura inputs de movimentação
+            float horizontal = Input.GetAxis("Horizontal");
+            float vertical = Input.GetAxis("Vertical");
+            Vector3 position = new Vector3(horizontal, 0, vertical);
+            position = MyCamera.TransformDirection(position);
+            position.y = 0f;
+
+            // Movimenta o personagem
+            controller.Move(position * speed * Time.deltaTime);
+
+            if (enableAnimations)
+            {
+                // Atualiza animações
+                animator.SetBool("move", position != Vector3.zero);
+                animator.SetBool("idle", position == Vector3.zero);
+            }
+
+            // Rotaciona o personagem na direção do movimento
+            if (position != Vector3.zero)
+            {
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(position), Time.deltaTime * 10);
+            }
         }
 
         // Verifica se o personagem está no chão
         isGrounded = Physics.CheckSphere(foot.position, 0.3f, colisaoLayer);
-        animator.SetBool("jump", !isGrounded);
+        
+        if (enableAnimations)
+        {
+            animator.SetBool("jump", !isGrounded);
+        }
 
         // Código do pulo
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        if (enableJump && Input.GetButtonDown("Jump") && isGrounded)
         {
             gravity = jumpForce;
             timeInAir = 0f;
         }
 
         // Verifica duplo clique para ativar a habilidade STOMP
-        if (Input.GetButtonDown("Jump"))
+        if (enableStomp && Input.GetButtonDown("Jump"))
         {
             if (Time.time - lastJumpTime < doubleClickTime)
             {
@@ -99,11 +122,14 @@ public class PlayerController1 : MonoBehaviour
         }
 
         // Atualiza a posição da câmera
-        Vector3 newCameraPosition = transform.position + cameraOffset;
-        MyCamera.position = newCameraPosition;
+        if (enableCameraFollow)
+        {
+            Vector3 newCameraPosition = transform.position + cameraOffset;
+            MyCamera.position = newCameraPosition;
+        }
 
         // **Lógica para colocar a mina**
-        if (canPlaceMine && Input.GetKeyDown(KeyCode.E) || canPlaceMine && Input.GetButtonDown("PlaceMine"))
+        if (enableMinePlacement && canPlaceMine && (Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown("PlaceMine")))
         {
             Vector3 dropPosition = transform.position + transform.forward * 1.5f; // Coloca a mina na frente do jogador
             mineBuffSystem.PlaceMine(dropPosition);
@@ -136,34 +162,29 @@ public class PlayerController1 : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
+        if (!enableBuffSystem) return; // Desativa buffs se estiver desativado no Inspector
+
         if (other.gameObject.CompareTag("consumable1"))
         {
             Destroy(other.gameObject);
-            if (playerBuffs != null)
-            {
-                playerBuffs.ApplyBuff(BuffType.Speed, 5f, 5.0f);
-            }
+            playerBuffs?.ApplyBuff(BuffType.Speed, 5f, 5.0f);
         }
         else if (other.gameObject.CompareTag("consumable2"))
         {
             Destroy(other.gameObject);
-            if (playerBuffs != null)
-            {
-                playerBuffs.ApplyBuff(BuffType.Damage, 5f, 5f);
-            }
+            playerBuffs?.ApplyBuff(BuffType.Damage, 5f, 5f);
         }
         else if (other.gameObject.CompareTag("consumable4"))
         {
             Destroy(other.gameObject);
-            if (playerBuffs != null)
-            {
-                playerBuffs.ApplyBuff(BuffType.Invulnerability, 5f);
-            }
+            playerBuffs?.ApplyBuff(BuffType.Invulnerability, 5f);
         }
     }
 
     public void EnableMinePlacement(PlayerBuffs buffSystem)
     {
+        if (!enableMinePlacement) return;
+
         canPlaceMine = true;
         mineBuffSystem = buffSystem;
         Debug.Log("Você pode colocar minas! Pressione 'E' para colocar.");

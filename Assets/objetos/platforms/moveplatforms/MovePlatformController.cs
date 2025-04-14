@@ -10,6 +10,9 @@ public class MovePlatformController : MonoBehaviour
     // Duração da transição suave.
     public float transitionDuration = 0.1f;
     
+    // Novo: delay antes de iniciar a transição
+    public float delayTime = 1.0f;
+    
     // Flag para garantir que o código seja executado apenas uma vez.
     private bool hasExecuted = false;
 
@@ -28,6 +31,9 @@ public class MovePlatformController : MonoBehaviour
     // Coroutine para fazer uma transição suave (descida) do objeto.
     private IEnumerator SmoothTransition()
     {
+        // Novo: delay antes da transição
+        yield return new WaitForSeconds(delayTime);
+        
         Vector3 startPos = transform.position;
         float targetY = targetCube.position.y;
         Vector3 targetPos = new Vector3(startPos.x, targetY, startPos.z);

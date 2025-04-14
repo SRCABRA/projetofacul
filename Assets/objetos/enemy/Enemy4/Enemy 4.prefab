@@ -67,6 +67,7 @@ GameObject:
   - component: {fileID: 7037221077291538860}
   - component: {fileID: 7561143976102276269}
   - component: {fileID: 5935852516818012061}
+  - component: {fileID: -3119696024006793356}
   m_Layer: 7
   m_Name: Enemy 4
   m_TagString: Enemy
@@ -223,3 +224,16 @@ MonoBehaviour:
   enemyMinionPrefab: {fileID: 5515660051657388805, guid: a892b3cf2a855e2479b0a2f68003f994, type: 3}
   minionsToSpawn: 3
   spawnOffset: 1.5
+--- !u!114 &-3119696024006793356
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5515660051657388805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e658aa681924a5f41a445f78e19b1f2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  deathEffectPrefab: {fileID: 1277154925287174, guid: 3b517eddec185dd4a830743a742ad00b, type: 3}
