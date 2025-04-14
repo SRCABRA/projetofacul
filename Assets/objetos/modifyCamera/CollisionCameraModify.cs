@@ -6,13 +6,13 @@ public class CollisionCameraModify : MonoBehaviour
     [Header("Referências")]
     public CinemachineVirtualCamera vcam;
     public Transform player;
-    public Transform lookTarget; // Empty no centro ou frente do jogador
+    public Transform lookTarget;
 
     [Header("Close Camera Offset")]
-    public Vector3 closeOffset = new Vector3(0, 2.5f, -5f); // Atrás do jogador
+    public Vector3 closeOffset = new Vector3(0, 2.5f, -5f);
 
     [Header("Rotação horizontal extra (graus)")]
-    public float horizontalAngleOffset = 180f; // 180 = olhar pelas costas
+    public float horizontalAngleOffset = 180f;
 
     [Header("Damping")]
     private float normalHorizontalDamping = 0.5f;
@@ -21,9 +21,8 @@ public class CollisionCameraModify : MonoBehaviour
     private float closeVerticalDamping = 8f;
 
     [Header("Velocidades")]
-    public float transitionSpeed = 0.5f;
-    public float lookRotationSpeed = 1.5f;
-    public float returnLookRotationSpeed = 5f; // mais rápido pra voltar ao normal
+    private float transitionSpeed = 0.5f;
+    private float lookRotationSpeed = 1.5f;
 
     private Vector3 originalOffset;
     private bool isClose = false;
@@ -32,14 +31,17 @@ public class CollisionCameraModify : MonoBehaviour
     private CinemachineTransposer transposer;
     private CinemachineComposer composer;
 
-    // Controle da transição suave de retorno
-    private bool transitioningBack = false;
-    private float transitionBackTimer = 0f;
-    private float transitionBackDuration = 0.5f;
+    // Transição
+    private bool isReturningToNormal = false;
+    private float returnTimer = 0f;
+    private float returnDuration = 0.5f;
 
-    // Para restaurar screen position original
+    // Screen position original
     private float originalScreenX;
     private float originalScreenY;
+
+    // Controle de rotação manual
+    private bool allowManualRotation = false;
 
     void Start()
     {
@@ -56,22 +58,23 @@ public class CollisionCameraModify : MonoBehaviour
 
     void Update()
     {
-        // Transição suave entre os offsets
         Vector3 targetOffset = isClose ? closeOffset : originalOffset;
         transposer.m_FollowOffset = Vector3.Lerp(transposer.m_FollowOffset, targetOffset, Time.deltaTime * transitionSpeed);
 
-        if (transitioningBack)
+        if (isReturningToNormal)
         {
-            transitionBackTimer += Time.deltaTime;
+            returnTimer += Time.deltaTime;
 
-            if (transitionBackTimer >= transitionBackDuration)
+            if (returnTimer >= returnDuration)
             {
-                transitioningBack = false;
+                isReturningToNormal = false;
+                allowManualRotation = false;
 
-                // Só agora voltamos o LookAt para o player
+                // AQUI: Força a rotação para alinhar corretamente antes de entregar ao Cinemachine
+                AlignCameraToPlayer();
+
+                // Reativa LookAt e damping suaves
                 vcam.LookAt = player;
-
-                // Restaura damping e posição original do Composer
                 ApplyNormalDamping();
                 composer.m_ScreenX = originalScreenX;
                 composer.m_ScreenY = originalScreenY;
@@ -81,20 +84,18 @@ public class CollisionCameraModify : MonoBehaviour
 
     void LateUpdate()
     {
-        if (isInCloseCutscene || transitioningBack)
+        if (allowManualRotation)
         {
             Vector3 direction = (lookTarget.position - vcam.transform.position).normalized;
             Quaternion baseRotation = Quaternion.LookRotation(direction, Vector3.up);
             Quaternion offsetRotation = Quaternion.Euler(0, horizontalAngleOffset, 0);
             Quaternion finalRotation = baseRotation * offsetRotation;
 
-            float speed = isInCloseCutscene ? lookRotationSpeed : returnLookRotationSpeed;
-
-            vcam.transform.rotation = Quaternion.Slerp(vcam.transform.rotation, finalRotation, Time.deltaTime * speed);
+            vcam.transform.rotation = Quaternion.Slerp(vcam.transform.rotation, finalRotation, Time.deltaTime * lookRotationSpeed);
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("CameraClose"))
         {
@@ -110,9 +111,11 @@ public class CollisionCameraModify : MonoBehaviour
     {
         isClose = true;
         isInCloseCutscene = true;
-        transitioningBack = false;
+        isReturningToNormal = false;
 
-        vcam.LookAt = null; // Controle manual da rotação
+        allowManualRotation = true;
+        vcam.LookAt = null;
+
         ApplyCloseDamping();
     }
 
@@ -121,13 +124,11 @@ public class CollisionCameraModify : MonoBehaviour
         isClose = false;
         isInCloseCutscene = false;
 
-        // Inicia transição suave de volta
-        transitioningBack = true;
-        transitionBackTimer = 0f;
+        isReturningToNormal = true;
+        returnTimer = 0f;
+        allowManualRotation = true;
 
         vcam.LookAt = null;
-
-        // Temporariamente zera damping para transição limpa
         composer.m_HorizontalDamping = 0f;
         composer.m_VerticalDamping = 0f;
         composer.m_ScreenX = 0.5f;
@@ -148,5 +149,16 @@ public class CollisionCameraModify : MonoBehaviour
         composer.m_VerticalDamping = normalVerticalDamping;
         composer.m_DeadZoneWidth = 0.05f;
         composer.m_DeadZoneHeight = 0.05f;
+    }
+
+    void AlignCameraToPlayer()
+    {
+        Vector3 direction = (lookTarget.position - vcam.transform.position).normalized;
+        Quaternion baseRotation = Quaternion.LookRotation(direction, Vector3.up);
+        Quaternion offsetRotation = Quaternion.Euler(0, horizontalAngleOffset, 0);
+        Quaternion finalRotation = baseRotation * offsetRotation;
+
+        // Força a rotação exata sem suavização
+        vcam.transform.rotation = finalRotation;
     }
 }

@@ -87,7 +87,7 @@ Transform:
   m_GameObject: {fileID: 6965523418978863840}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.9999875, z: -0, w: -0.0050120964}
-  m_LocalPosition: {x: -0.34, y: 0.65, z: 11.61}
+  m_LocalPosition: {x: -0.25, y: 0.65, z: 2.57}
   m_LocalScale: {x: 0.9999999, y: 1, z: 0.9999999}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -311,8 +311,8 @@ MonoBehaviour:
   vcam: {fileID: 0}
   player: {fileID: 0}
   lookTarget: {fileID: 0}
-  closeCameraRotationReference: {fileID: 0}
   closeOffset: {x: 0, y: 2.5, z: -5}
+  horizontalAngleOffset: 180
 --- !u!143 &7985764634047048799
 CharacterController:
   m_ObjectHideFlags: 0
