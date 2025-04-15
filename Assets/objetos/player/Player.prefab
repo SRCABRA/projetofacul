@@ -31,6 +31,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 9182947955785966056}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4190861794768685050
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9035223757385738947}
+  m_Layer: 0
+  m_Name: StayHereDrone
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9035223757385738947
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4190861794768685050}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.9999875, z: -0, w: -0.005012097}
+  m_LocalPosition: {x: -1.99, y: 1.27, z: 0.48}
+  m_LocalScale: {x: 0.51385987, y: 0.51386, z: 0.51385987}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9182947955785966056}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4518146708438278421
 GameObject:
   m_ObjectHideFlags: 0
@@ -140,6 +171,7 @@ Transform:
   - {fileID: 2236834988484244565}
   - {fileID: 8381172232872107062}
   - {fileID: 3777506973446432271}
+  - {fileID: 9035223757385738947}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 180.574, z: 0}
 --- !u!33 &2769397064666577260

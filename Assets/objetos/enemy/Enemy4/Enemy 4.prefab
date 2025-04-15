@@ -206,10 +206,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a6edb2a77721034399e4db6ba472bff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  life: 50
+  enableLifeSystem: 1
+  enableDamage: 1
+  enableFlashEffect: 1
+  enableJumpEffect: 1
+  life: 10
   danoBullet: 4
   danoAreaAttack: 6
   danoBackpack: 3
+  enableMovement: 1
+  enableTargeting: 1
+  enableItemDrop: 1
   player: {fileID: 0}
   target: {fileID: 0}
   speed: 5
