@@ -14,8 +14,8 @@ public class WaterDelObj : MonoBehaviour
         
     }
 
-    void OnTriggerEnter(Collider other)
-    {
-        Destroy(other.gameObject);
-    }
+    // void OnTriggerEnter(Collider other)
+    // {
+    //     Destroy(other.gameObject);
+    // }
 }
