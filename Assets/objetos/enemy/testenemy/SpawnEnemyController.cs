@@ -18,7 +18,7 @@ public class SpawnEnemyController : MonoBehaviour
         if (spawnTime <= 0)
         {
             Instantiate(enemyPrefab, transform.position, transform.rotation);
-            spawnTime = 3f;
+            spawnTime = 15f;
         }
         else
         {

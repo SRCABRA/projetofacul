@@ -59,6 +59,11 @@ public class LifeController : MonoBehaviour
             if (enablePizzaThrowing) ThrowPizzaBox();
             StartCoroutine(InvulnerabilityCoroutine(invulnerabilityDuration));
         }
+        if (enableInvulnerability && collision.gameObject.CompareTag("BulletEnemy") && !isInvulnerable)
+        {
+            if (enablePizzaThrowing) ThrowPizzaBox();
+            StartCoroutine(InvulnerabilityCoroutine(invulnerabilityDuration));
+        }
     }
 
     void ThrowPizzaBox()
