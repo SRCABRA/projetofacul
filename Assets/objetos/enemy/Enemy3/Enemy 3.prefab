@@ -198,6 +198,7 @@ MonoBehaviour:
   animator: {fileID: 1110977036759613872}
   wanderRadius: 10
   wanderInterval: 5
+  enablePatrol: 1
   pizzaBoxPrefab: {fileID: 1589319413836369823, guid: 8d30b3cf2cc684642b1e65e3ee1eebcb, type: 3}
   consumable1Prefab: {fileID: 534128245748221230, guid: 72f8fe7bbf06f9b4ca3c0159a474b33b, type: 3}
   consumable2Prefab: {fileID: 534128245748221230, guid: 06c0be94d3c2e2f47938da9382d38df4, type: 3}
@@ -305,10 +306,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -2771249810493347087, guid: 259ed27343dbdc4409127db7196d5f70, type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -2771249810493347087, guid: 259ed27343dbdc4409127db7196d5f70, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 96d60b27b146e564ea3f9944dcf9d801, type: 2}
     - target: {fileID: 919132149155446097, guid: 259ed27343dbdc4409127db7196d5f70, type: 3}
       propertyPath: m_Name
       value: EnemyRunning
       objectReference: {fileID: 0}
+    - target: {fileID: 1454597071884414375, guid: 259ed27343dbdc4409127db7196d5f70, type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1454597071884414375, guid: 259ed27343dbdc4409127db7196d5f70, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 96d60b27b146e564ea3f9944dcf9d801, type: 2}
     - target: {fileID: 5866666021909216657, guid: 259ed27343dbdc4409127db7196d5f70, type: 3}
       propertyPath: m_Avatar
       value: 
