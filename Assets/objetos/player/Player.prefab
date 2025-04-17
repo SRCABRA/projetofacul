@@ -248,7 +248,7 @@ MonoBehaviour:
   enableAnimations: 1
   speed: 11
   gravity: -2
-  jumpForce: 10
+  jumpForce: 15
   foot: {fileID: 9049142198123414510}
   colisaoLayer:
     serializedVersion: 2
@@ -259,6 +259,10 @@ MonoBehaviour:
   abilityCooldown: 2
   AreaAttack: {fileID: 56288935569468523, guid: 7b728ef1e955e3a42b3339014e339493, type: 3}
   scaleIncreasePerSecond: 1
+  invulnerabilityDuration: 2
+  enableInvulnerabilityBlink: 1
+  blinkColor: {r: 0, g: 0, b: 1, a: 1}
+  blinkInterval: 0.2
 --- !u!114 &422959661772012469
 MonoBehaviour:
   m_ObjectHideFlags: 0

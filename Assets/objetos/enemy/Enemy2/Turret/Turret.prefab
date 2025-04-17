@@ -124,6 +124,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcd3d6b6b5e855f4ab159ae357a584ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableLifeSystem: 1
+  enableDamage: 1
+  enableFlashEffect: 1
+  enableJumpEffect: 1
   life: 10
   danoBullet: 4
   danoAreaAttack: 6
@@ -131,6 +135,7 @@ MonoBehaviour:
   bulletPrefab: {fileID: 777247542936644158, guid: cfcd3744e3c67ec44bff06973171e403, type: 3}
   firePoint: {fileID: 5166129026159576842}
   fireRate: 4
+  detectionRange: 50
   explosionEffect: {fileID: 1809022330002312, guid: ed511b7776af6174e9b1255c7a81e59c, type: 3}
 --- !u!54 &5847106634806383328
 Rigidbody:

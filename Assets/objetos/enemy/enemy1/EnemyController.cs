@@ -21,6 +21,7 @@ public class EnemyController : EnemyPai
     [Header("Configuração de Patrulha")]
     [SerializeField] private float wanderRadius = 10f;
     [SerializeField] private float wanderInterval = 5f;
+    [SerializeField] public bool enablePatrol = true;
     private float wanderTimer;
     private Vector3 wanderTarget;
 
@@ -36,22 +37,22 @@ public class EnemyController : EnemyPai
     [Range(0f, 1f)] [SerializeField] private float consumable4DropChance = 0.1f;
 
     private GameObject carriedPizzaBox;
+    private Vector3 lastPosition;
 
     protected override void Start()
     {
         base.Start();
         wanderTimer = wanderInterval;
+        lastPosition = transform.position;
     }
 
     protected override void Update()
     {
         base.Update();
 
-        Debug.Log("Update rodando no inimigo: " + gameObject.name);
-
         if (!enableMovement)
         {
-            SetRunning(false);
+            SetSpeed(0f);
             return;
         }
 
@@ -63,6 +64,31 @@ public class EnemyController : EnemyPai
         else
         {
             PatrolBehavior();
+        }
+
+        UpdateAnimationSpeed();
+
+        // Atualiza o estado do solo no Animator
+        if (animator != null)
+        {
+            animator.SetBool("isGround", IsGrounded());
+        }
+    }
+
+    private void UpdateAnimationSpeed()
+    {
+        float distanceMoved = (transform.position - lastPosition).magnitude;
+        float movementSpeed = distanceMoved / Time.deltaTime;
+
+        SetSpeed(movementSpeed);
+        lastPosition = transform.position;
+    }
+
+    private void SetSpeed(float speedValue)
+    {
+        if (animator != null)
+        {
+            animator.SetFloat("Speed", speedValue);
         }
     }
 
@@ -85,6 +111,9 @@ public class EnemyController : EnemyPai
 
     private void PatrolBehavior()
     {
+        if (!enablePatrol)
+            return;
+
         wanderTimer += Time.deltaTime;
 
         if (wanderTimer >= wanderInterval || Vector3.Distance(transform.position, wanderTarget) < 1f)
@@ -98,13 +127,17 @@ public class EnemyController : EnemyPai
             wanderTimer = 0f;
         }
 
+        float distToTarget = Vector3.Distance(transform.position, wanderTarget);
+        if (distToTarget < 0.1f)
+        {
+            return;
+        }
+
         Vector3 direction = (wanderTarget - transform.position).normalized;
         direction.y = 0;
 
         transform.position += direction * (speed * 0.5f) * Time.deltaTime;
         RotateTowards(direction);
-
-        SetRunning(false); // patrulhando = Idle
     }
 
     private void MoveTowardsTarget()
@@ -116,8 +149,6 @@ public class EnemyController : EnemyPai
 
             transform.position += direction * speed * Time.deltaTime;
             RotateTowards(direction);
-
-            SetRunning(true); // perseguindo = Run
         }
     }
 
@@ -149,20 +180,6 @@ public class EnemyController : EnemyPai
         player = closestPlayer;
     }
 
-private void SetRunning(bool isRunning)
-{
-    if (animator != null)
-    {
-        animator.SetBool("IsRunning", isRunning);
-        Debug.Log($"{gameObject.name} - SetRunning({isRunning})");
-    }
-    else
-    {
-        Debug.LogWarning($"{gameObject.name} - Animator está NULL!");
-    }
-}
-
-
     protected override void Drop()
     {
         if (!enableItemDrop) return;
@@ -190,5 +207,20 @@ private void SetRunning(bool isRunning)
         {
             Instantiate(consumablePrefab, transform.position, Quaternion.identity);
         }
+    }
+
+    // === NOVO MÉTODO: Verifica se está no chão ===
+    private bool IsGrounded()
+    {
+        RaycastHit hit;
+        Ray ray = new Ray(transform.position + Vector3.up * 0.1f, Vector3.down);
+
+        // Faz o raycast e verifica se colidiu com algo com a tag "chao"
+        if (Physics.Raycast(ray, out hit, 0.2f))
+        {
+            return hit.collider.CompareTag("chao");
+        }
+
+        return false;
     }
 }
