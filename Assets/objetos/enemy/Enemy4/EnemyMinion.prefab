@@ -185,7 +185,7 @@ MonoBehaviour:
   enableJumpEffect: 1
   life: 5
   danoBullet: 4
-  danoAreaAttack: 6
+  danoAreaAttack: 1
   danoBackpack: 3
   enableMovement: 1
   enableTargeting: 1

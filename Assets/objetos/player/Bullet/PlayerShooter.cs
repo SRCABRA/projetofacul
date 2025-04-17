@@ -4,8 +4,8 @@ public class PlayerShooter : MonoBehaviour
 {
     private float timer;
     public GameObject bullet;
-    public float shootRange = 40f; // Distância mínima para atirar
-    public LayerMask obstacleMask; // Camada dos obstáculos
+    public float shootRange = 40f; // Distância máxima para atirar
+    public LayerMask obstacleMask; // Camadas dos obstáculos (defina no Inspector)
 
     void Start()
     {
@@ -21,8 +21,9 @@ public class PlayerShooter : MonoBehaviour
             if (nearestEnemy != null)
             {
                 float distance = Vector3.Distance(transform.position, nearestEnemy.transform.position);
-                
-                if (distance <= shootRange && CanSeeEnemy(nearestEnemy)) // Só atira se enxergar o inimigo
+
+                // Só atira se o inimigo estiver dentro do alcance e visível
+                if (distance <= shootRange && CanSeeEnemy(nearestEnemy))
                 {
                     Shoot();
                     timer = 0;
@@ -59,14 +60,15 @@ public class PlayerShooter : MonoBehaviour
         Vector3 direction = (enemy.transform.position - transform.position).normalized;
         float distance = Vector3.Distance(transform.position, enemy.transform.position);
 
-        // Raycast para detectar se há algo entre o jogador e o inimigo
+        // Raycast que só colide com camadas marcadas em obstacleMask
         if (Physics.Raycast(transform.position, direction, out RaycastHit hit, distance, obstacleMask))
         {
-            Debug.DrawLine(transform.position, hit.point, Color.red, 0.2f);
-            return false; // O tiro é bloqueado
+            Debug.DrawLine(transform.position, hit.point, Color.red, 0.5f);
+            Debug.Log("Visão bloqueada por: " + hit.collider.name + " | Layer: " + LayerMask.LayerToName(hit.collider.gameObject.layer));
+            return false; // Obstáculo entre jogador e inimigo
         }
 
-        Debug.DrawLine(transform.position, enemy.transform.position, Color.green, 0.2f);
-        return true; // O jogador pode atirar
+        Debug.DrawLine(transform.position, enemy.transform.position, Color.green, 0.5f);
+        return true; // Nada bloqueando a visão
     }
 }

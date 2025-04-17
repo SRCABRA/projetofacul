@@ -1,7 +1,9 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class delObj : MonoBehaviour
 {
+    public GameObject player;
     void Start()
     {
         
@@ -15,6 +17,7 @@ public class delObj : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        Destroy(other.gameObject);
+        if(other.gameObject.CompareTag("Player"))
+         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

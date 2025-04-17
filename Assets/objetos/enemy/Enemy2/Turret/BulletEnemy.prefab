@@ -123,6 +123,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 10
+  timeToDestroy: 10
+  targetTagPlayer: Player
+  destroyOnCollision: 1
+  destroyOnTrigger: 1
+  direction: {x: 0, y: 0, z: 0}
 --- !u!1001 &4828948598730574722
 PrefabInstance:
   m_ObjectHideFlags: 0

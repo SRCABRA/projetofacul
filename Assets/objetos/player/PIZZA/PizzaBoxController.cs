@@ -21,35 +21,40 @@ public class PizzaBoxController : MonoBehaviour
         }
     }
 
-    void OnCollisionEnter(Collision collision)
+void OnCollisionEnter(Collision collision)
+{
+    if (collision.gameObject.CompareTag("chao") && transform.parent == null)
     {
-        if (collision.gameObject.CompareTag("chao") && transform.parent == null)
-        {
-            isFloating = true;
-            GetComponent<Rigidbody>().isKinematic = true; // Desativa a física para flutuar
+        isFloating = true;
+        GetComponent<Rigidbody>().isKinematic = true;
 
-            // Ajusta a posição para ficar logo acima do chão
-            groundHeight = collision.contacts[0].point.y;
-            Vector3 newPosition = transform.position;
-            newPosition.y = groundHeight + 0.1f; // Ajusta a altura para ficar um pouco acima do chão
-            transform.position = newPosition;
+        // Ajusta a altura
+        groundHeight = collision.contacts[0].point.y;
+        Vector3 newPosition = transform.position;
+        newPosition.y = groundHeight + 0.1f;
+        transform.position = newPosition;
 
-            StartCoroutine(EnableCollection());
+        canBeCollected = true; // <- já permite pegar sem delay
 
-            // Inicia o timer para destruição
-            StartDestructionTimer();
-        }
-        else if (collision.gameObject.CompareTag("Player") && transform.parent == null && canBeCollected)
-        {
-            // Cancela o timer de destruição se o jogador pegar a caixa
-            StopDestructionTimer();
-
-            // Restaura a caixa de pizza ao jogador
-            collision.gameObject.GetComponent<LifeController>().RestorePizzaBox(transform);
-            isFloating = false;
-            canBeCollected = false;
-        }
+        StartDestructionTimer();
     }
+    else if (collision.gameObject.CompareTag("Player") && transform.parent == null && canBeCollected)
+    {
+        // Cancela destruição
+        StopDestructionTimer();
+
+        // Restaura a pizza ao jogador
+        LifeController lifeController = collision.gameObject.GetComponent<LifeController>();
+        lifeController.RestorePizzaBox(transform);
+
+        // Ativa invulnerabilidade de 2 segundos
+        lifeController.ActivateInvulnerability(2f);
+
+        isFloating = false;
+        canBeCollected = false;
+    }
+}
+
 
     IEnumerator EnableCollection()
     {

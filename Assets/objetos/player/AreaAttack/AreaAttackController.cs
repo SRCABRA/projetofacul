@@ -23,4 +23,3 @@ public class AreaAttackController : MonoBehaviour
         }
     }
 }
-// Compare this snippet from Assets/objetos/player/STOMP/STOMPController.cs:

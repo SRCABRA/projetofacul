@@ -1,18 +1,30 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class BarrierController : MonoBehaviour
 {
-    public int requiredEnemiesDefeated = 5; // Número necessário de inimigos mortos
-    public float descentSpeed = 2f; // Velocidade de descida da barreira
-    public float descentHeight = 3f; // Distância que a barreira desce
-    public float shakeIntensity = 0.2f; // Intensidade inicial do tremor
-    public float shakeDamping = 0.05f; // Redução gradual do tremor
-    public BarrierController previousBarrier; // Referência ao portão anterior
-    
-    private int totalEnemies = -1; // Inicializado como -1 para indicar que ainda não foi definido
+    [Header("Barrier Settings")]
+    public int requiredEnemiesDefeated = 5;
+    public float descentSpeed = 2f;
+    public float descentHeight = 3f;
+    public float detectionRadius = 10f;
+
+    [Header("Shake Effect")]
+    public float shakeIntensity = 0.2f;
+    public float shakeDamping = 0.05f;
+
+    [Header("Optional Dependencies")]
+    public BarrierController previousBarrier;
+
+    [Header("Debug Info (Somente Leitura)")]
+    [SerializeField] private int detectedEnemies = 0;
+    [SerializeField] private int defeatedEnemies = 0;
+
     private bool isOpening = false;
     private Vector3 initialPosition;
     private Vector3 targetPosition;
+
+    private HashSet<GameObject> trackedEnemies = new HashSet<GameObject>();
 
     void Start()
     {
@@ -22,39 +34,85 @@ public class BarrierController : MonoBehaviour
 
     void Update()
     {
+        // Aguarda portão anterior abrir, se houver
         if (previousBarrier != null && !previousBarrier.isOpening)
+            return;
+
+        if (!isOpening)
         {
-            return; // Aguarda o portão anterior abrir antes de começar a contar inimigos
+            TrackNearbyEnemies();
+            CheckDefeatedEnemies();
         }
 
-        if (totalEnemies == -1)
-        {
-            totalEnemies = GameObject.FindGameObjectsWithTag("Enemy").Length; // Define o total apenas quando o portão anterior abrir
-        }
-
-        int remainingEnemies = GameObject.FindGameObjectsWithTag("Enemy").Length;
-        int enemiesDefeated = totalEnemies - remainingEnemies; // Calcula quantos foram destruídos
-
-        if (enemiesDefeated >= requiredEnemiesDefeated)
+        if (defeatedEnemies >= requiredEnemiesDefeated)
         {
             isOpening = true;
         }
 
         if (isOpening)
         {
-            // Faz a barreira descer
+            // Move o portão para baixo
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, Time.deltaTime * descentSpeed);
 
-            // Aplica o efeito de tremor
+            // Efeito de tremor
             if (shakeIntensity > 0)
             {
                 float shakeX = Random.Range(-shakeIntensity, shakeIntensity);
                 float shakeY = Random.Range(-shakeIntensity, shakeIntensity);
                 transform.position += new Vector3(shakeX, shakeY, 0);
-
-                // Diminui gradualmente a intensidade do tremor
                 shakeIntensity -= shakeDamping * Time.deltaTime;
             }
         }
+    }
+
+    void TrackNearbyEnemies()
+    {
+        GameObject[] allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
+
+        foreach (GameObject enemy in allEnemies)
+        {
+            if (trackedEnemies.Contains(enemy)) continue;
+
+            float distance = Vector3.Distance(transform.position, enemy.transform.position);
+            if (distance <= detectionRadius)
+            {
+                trackedEnemies.Add(enemy);
+                detectedEnemies = trackedEnemies.Count;
+                Debug.Log("👀 Inimigo detectado na área! Total rastreados: " + detectedEnemies);
+            }
+        }
+    }
+
+    void CheckDefeatedEnemies()
+    {
+        List<GameObject> toRemove = new List<GameObject>();
+
+        foreach (GameObject enemy in trackedEnemies)
+        {
+            if (enemy == null)
+            {
+                defeatedEnemies++;
+                Debug.Log("☠️ Inimigo rastreado foi derrotado! Total: " + defeatedEnemies);
+                toRemove.Add(enemy);
+            }
+        }
+
+        foreach (GameObject deadEnemy in toRemove)
+        {
+            trackedEnemies.Remove(deadEnemy);
+        }
+
+        detectedEnemies = trackedEnemies.Count;
+    }
+
+    // Gizmos: mostram área de detecção no editor
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = isOpening ? Color.green : Color.red;
+        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+
+#if UNITY_EDITOR
+        UnityEditor.Handles.Label(transform.position + Vector3.up * 2f, $"Detectados: {detectedEnemies} / Mortos: {defeatedEnemies}");
+#endif
     }
 }

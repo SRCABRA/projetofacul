@@ -10,7 +10,6 @@ public class DestroyAfterEffect : MonoBehaviour
 
         if (ps == null)
         {
-            Debug.LogError("Nenhum ParticleSystem encontrado!", this);
             return;
         }
 

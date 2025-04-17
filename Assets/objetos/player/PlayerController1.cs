@@ -1,4 +1,7 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 public class PlayerController1 : MonoBehaviour
 {
@@ -15,7 +18,6 @@ public class PlayerController1 : MonoBehaviour
     public float speed = 15.0f;
     public float gravity = -10f;
     public float jumpForce = 5f;
-    
     private bool isGrounded;
 
     [Header("Configurações de Detecção")]
@@ -36,7 +38,6 @@ public class PlayerController1 : MonoBehaviour
 
     private float lastJumpTime = 0f;
     private float doubleClickTime = 0.3f;
-
     private float timeInAir = 0f;
     [SerializeField] private float scaleIncreasePerSecond = 0.1f;
 
@@ -46,6 +47,20 @@ public class PlayerController1 : MonoBehaviour
     private bool canPlaceMine = false;
     private PlayerBuffs mineBuffSystem;
 
+    [Header("Invulnerabilidade")]
+    [SerializeField] private float invulnerabilityDuration = 2f;
+    private bool isInvulnerable = false;
+
+    [Header("Efeito Visual de Invulnerabilidade")]
+    private readonly List<Collider> ignoredEnemyColliders = new List<Collider>();
+    [SerializeField] private bool enableInvulnerabilityBlink = true;
+    [SerializeField] private Color blinkColor = Color.blue;
+    [SerializeField] private float blinkInterval = 0.2f;
+
+    private Renderer[] renderersToBlink;
+    private Color[] originalColors;
+    private Coroutine blinkCoroutine;
+
     void Start()
     {
         playerBuffs = GetComponent<PlayerBuffs>();
@@ -53,52 +68,54 @@ public class PlayerController1 : MonoBehaviour
         MyCamera = Camera.main.transform;
         cameraOffset = MyCamera.position - transform.position;
         animator = GetComponentInChildren<Animator>();
+
+        renderersToBlink = GetComponentsInChildren<Renderer>();
+        originalColors = new Color[renderersToBlink.Length];
+        for (int i = 0; i < renderersToBlink.Length; i++)
+        {
+            renderersToBlink[i].material = new Material(renderersToBlink[i].material);
+            if (renderersToBlink[i].material.HasProperty("_Color"))
+                originalColors[i] = renderersToBlink[i].material.color;
+        }
     }
 
     void Update()
     {
         if (enableMovement)
         {
-            // Captura inputs de movimentação
             float horizontal = Input.GetAxis("Horizontal");
             float vertical = Input.GetAxis("Vertical");
             Vector3 position = new Vector3(horizontal, 0, vertical);
             position = MyCamera.TransformDirection(position);
             position.y = 0f;
 
-            // Movimenta o personagem
             controller.Move(position * speed * Time.deltaTime);
 
             if (enableAnimations)
             {
-                // Atualiza animações
                 animator.SetBool("move", position != Vector3.zero);
                 animator.SetBool("idle", position == Vector3.zero);
             }
 
-            // Rotaciona o personagem na direção do movimento
             if (position != Vector3.zero)
             {
                 transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(position), Time.deltaTime * 10);
             }
         }
 
-        // Verifica se o personagem está no chão
         isGrounded = Physics.CheckSphere(foot.position, 0.3f, colisaoLayer);
-        
+
         if (enableAnimations)
         {
             animator.SetBool("jump", !isGrounded);
         }
 
-        // Código do pulo
         if (enableJump && Input.GetButtonDown("Jump") && isGrounded)
         {
             gravity = jumpForce;
             timeInAir = 0f;
         }
 
-        // Verifica duplo clique para ativar a habilidade STOMP
         if (enableStomp && Input.GetButtonDown("Jump"))
         {
             if (Time.time - lastJumpTime < doubleClickTime)
@@ -108,31 +125,38 @@ public class PlayerController1 : MonoBehaviour
             lastJumpTime = Time.time;
         }
 
-        // Atualiza a gravidade
         if (gravity > -10f)
         {
             gravity += -25f * Time.deltaTime;
         }
+
         controller.Move(new Vector3(0, gravity, 0) * Time.deltaTime);
 
-        // Atualiza o tempo no ar se o personagem não estiver no chão
         if (!isGrounded)
         {
             timeInAir += 10 * Time.deltaTime;
         }
 
-        // Atualiza a posição da câmera
         if (enableCameraFollow)
         {
             Vector3 newCameraPosition = transform.position + cameraOffset;
             MyCamera.position = newCameraPosition;
         }
 
-        // **Lógica para colocar a mina**
         if (enableMinePlacement && canPlaceMine && (Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown("PlaceMine")))
         {
-            Vector3 dropPosition = transform.position + transform.forward * 1.5f; // Coloca a mina na frente do jogador
+            Vector3 dropPosition = transform.position + transform.forward * 1.5f;
             mineBuffSystem.PlaceMine(dropPosition);
+        }
+
+        // ✅ NOVO COMPORTAMENTO DE COLISÃO DURANTE STOMP
+        if (stompActivated && !isGrounded)
+        {
+            IgnoreAllEnemyCollisions(true);
+        }
+        else if (isGrounded)
+        {
+            IgnoreAllEnemyCollisions(false);
         }
     }
 
@@ -143,26 +167,159 @@ public class PlayerController1 : MonoBehaviour
             stompActivated = true;
             lastAbilityTime = Time.time;
             gravity = extraGravityForce;
+
+            StartCoroutine(ActivateTemporaryInvulnerability());
         }
     }
 
-    void OnControllerColliderHit(ControllerColliderHit hit)
+    private IEnumerator ActivateTemporaryInvulnerability()
     {
-        if (stompActivated && ((1 << hit.gameObject.layer) & colisaoLayer) != 0)
+        SetInvulnerability(true);
+        
+        // Durante o stomp
+        yield return new WaitForSeconds(invulnerabilityDuration);
+
+        // Espera mais 1 segundo extra após stomp
+        yield return new WaitForSeconds(1f);
+
+        SetInvulnerability(false);
+    }
+
+
+    public void SetInvulnerability(bool active)
+    {
+        isInvulnerable = active;
+
+        if (enableInvulnerabilityBlink)
         {
-            float newScale = 1f + (timeInAir * scaleIncreasePerSecond);
-            Vector3 areaAttackScale = new Vector3(newScale, newScale, newScale);
+            if (active)
+            {
+                if (blinkCoroutine != null) StopCoroutine(blinkCoroutine);
+                blinkCoroutine = StartCoroutine(BlinkEffect());
+            }
+            else
+            {
+                if (blinkCoroutine != null) StopCoroutine(blinkCoroutine);
+                RestoreOriginalColors();
+            }
+        }
 
-            GameObject areaAttackInstance = Instantiate(AreaAttack, foot.position, Quaternion.identity);
-            areaAttackInstance.transform.localScale = areaAttackScale;
+        ToggleEnemyCollision(!active);
+    }
 
-            stompActivated = false;
+    private IEnumerator BlinkEffect()
+    {
+        bool toggle = false;
+        while (isInvulnerable)
+        {
+            foreach (Renderer rend in renderersToBlink)
+            {
+                if (rend.material.HasProperty("_Color"))
+                    rend.material.color = toggle ? blinkColor : Color.white;
+            }
+            toggle = !toggle;
+            yield return new WaitForSeconds(blinkInterval);
+        }
+
+        RestoreOriginalColors();
+    }
+
+    private void RestoreOriginalColors()
+    {
+        for (int i = 0; i < renderersToBlink.Length; i++)
+        {
+            if (renderersToBlink[i].material.HasProperty("_Color"))
+                renderersToBlink[i].material.color = originalColors[i];
         }
     }
+
+    private void ToggleEnemyCollision(bool enable)
+    {
+        foreach (Collider enemyCol in ignoredEnemyColliders)
+        {
+            foreach (Collider playerCol in GetComponentsInChildren<Collider>())
+            {
+                Physics.IgnoreCollision(playerCol, enemyCol, !enable);
+            }
+        }
+
+        if (!enable) ignoredEnemyColliders.Clear();
+    }
+
+    private void IgnoreAllEnemyCollisions(bool ignore)
+    {
+        Collider[] enemyColliders = GameObject.FindGameObjectsWithTag("enemy")
+            .SelectMany(obj => obj.GetComponentsInChildren<Collider>())
+            .ToArray();
+
+        foreach (Collider enemyCol in enemyColliders)
+        {
+            foreach (Collider playerCol in GetComponentsInChildren<Collider>())
+            {
+                Physics.IgnoreCollision(playerCol, enemyCol, ignore);
+            }
+
+            if (ignore && !ignoredEnemyColliders.Contains(enemyCol))
+                ignoredEnemyColliders.Add(enemyCol);
+        }
+
+        if (!ignore)
+        {
+            ignoredEnemyColliders.Clear();
+        }
+    }
+
+void OnControllerColliderHit(ControllerColliderHit hit)
+{
+    if (isInvulnerable && hit.gameObject.CompareTag("enemy"))
+    {
+        CacheEnemyCollider(hit.collider);
+        return;
+    }
+
+    // ✅ Stomp pisa no inimigo
+    if (stompActivated && hit.gameObject.CompareTag("enemy"))
+    {
+        // Verifica se a colisão veio de cima
+        Vector3 contactNormal = hit.normal;
+        bool isFromAbove = Vector3.Dot(contactNormal, Vector3.up) > 0.5f;
+
+        if (isFromAbove)
+        {
+            Destroy(hit.gameObject); // Destroi o inimigo
+            Debug.Log("Inimigo pisado durante o stomp!");
+            return;
+        }
+    }
+
+    // ✅ Ao tocar no chão, instancia a área de ataque e aplica escala em todos (pai + filhos)
+    if (stompActivated && ((1 << hit.gameObject.layer) & colisaoLayer) != 0)
+    {
+        float newScale = 1f + (timeInAir * scaleIncreasePerSecond);
+        Vector3 areaAttackScale = new Vector3(newScale, newScale, newScale);
+
+        GameObject areaAttackInstance = Instantiate(AreaAttack, foot.position, Quaternion.identity);
+        areaAttackInstance.transform.localScale = areaAttackScale;
+
+        // ✅ Todos os filhos crescem juntos automaticamente por serem filhos no transform
+        Debug.Log($"Área de ataque instanciada com escala {areaAttackScale}");
+
+        stompActivated = false;
+        IgnoreAllEnemyCollisions(false);
+    }
+}
+
+
 
     void OnTriggerEnter(Collider other)
     {
-        if (!enableBuffSystem) return; // Desativa buffs se estiver desativado no Inspector
+        if (isInvulnerable && other.CompareTag("enemy"))
+        {
+            CacheEnemyCollider(other);
+            return;
+        }
+
+        if (!enableBuffSystem) return;
 
         if (other.gameObject.CompareTag("consumable1"))
         {
@@ -178,7 +335,26 @@ public class PlayerController1 : MonoBehaviour
         {
             Destroy(other.gameObject);
             playerBuffs?.ApplyBuff(BuffType.Invulnerability, 5f);
+            SetInvulnerability(true);
+            Invoke(nameof(DisableBuffInvulnerability), 5f);
         }
+    }
+
+    private void CacheEnemyCollider(Collider enemyCol)
+    {
+        if (!ignoredEnemyColliders.Contains(enemyCol))
+        {
+            foreach (Collider playerCol in GetComponentsInChildren<Collider>())
+            {
+                Physics.IgnoreCollision(playerCol, enemyCol, true);
+            }
+            ignoredEnemyColliders.Add(enemyCol);
+        }
+    }
+
+    private void DisableBuffInvulnerability()
+    {
+        SetInvulnerability(false);
     }
 
     public void EnableMinePlacement(PlayerBuffs buffSystem)

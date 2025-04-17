@@ -43,8 +43,18 @@ public class EnemyPai : MonoBehaviour
 
     protected virtual void OnCollisionEnter(Collision collision)
     {
+
+
+
+
+
+
         if (!enableDamage) return;
 
+        if (collision.gameObject.CompareTag("AreaAttack"))
+        {
+            Debug.Log("COLIDIU COM A ÁREA DE ATAQUE");
+        }
 
         if (collision.gameObject.CompareTag("AreaAttack") && !isJumping)
         {

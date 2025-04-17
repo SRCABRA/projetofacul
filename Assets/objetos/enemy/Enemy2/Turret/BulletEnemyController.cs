@@ -2,53 +2,68 @@ using UnityEngine;
 
 public class BulletEnemyController : MonoBehaviour
 {
-    public float speed = 10.0f;
-    private Vector3 direction; // Direção fixa da bala
+    [Header("Bullet Settings")]
+    [Tooltip("Velocidade da bala")]
+    [SerializeField] private float speed = 10.0f;
 
-    void Start()
+    [Tooltip("Tempo até a bala ser destruída automaticamente")]
+    [SerializeField] private float timeToDestroy = 20f;
+
+    [Tooltip("Tag do alvo (ex: 'Player')")]
+    [SerializeField] private string targetTagPlayer = "Player";
+
+    [Header("Collision Settings")]
+    [Tooltip("Ativar destruição por colisão com o alvo")]
+    [SerializeField] private bool destroyOnCollision = true;
+
+    [Tooltip("Ativar destruição por trigger com o alvo")]
+    [SerializeField] private bool destroyOnTrigger = true;
+
+    [Header("Debug (somente leitura)")]
+    [Tooltip("Direção inicial da bala (calculada no Start)")]
+    [SerializeField] private Vector3 direction;
+
+    private void Start()
     {
         SetInitialDirection();
-        Destroy(gameObject, 200);
+        Destroy(gameObject, timeToDestroy);
     }
 
-    void Update()
+    private void Update()
     {
-        // Move a bala na direção inicial (sem recalcular)
         transform.position += direction * speed * Time.deltaTime;
     }
 
-    void SetInitialDirection()
+    private void SetInitialDirection()
     {
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null)
+        GameObject target = GameObject.FindGameObjectWithTag(targetTagPlayer);
+        if (target != null)
         {
-            // Calcula a direção apenas uma vez
-            direction = (player.transform.position - transform.position).normalized;
+            direction = (target.transform.position - transform.position).normalized;
             transform.rotation = Quaternion.LookRotation(direction);
         }
         else
         {
-            Debug.Log("não foi encontrado");
-            Destroy(gameObject); // Se não tem player, destrói a bala
-        }
-    }
-
-    void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            Debug.Log("colidiu com o player (Collision)");
+            Debug.LogWarning($"Alvo com tag '{targetTagPlayer}' não foi encontrado.");
             Destroy(gameObject);
         }
     }
 
-    void OnTriggerEnter(Collider other)
+    private void OnCollisionEnter(Collision collision)
     {
-        if (other.CompareTag("Player"))
+        if (destroyOnCollision && collision.gameObject.CompareTag(targetTagPlayer))
         {
-            Debug.Log("colidiu com o player (Trigger)");
+            Debug.Log("Colidiu com o alvo via Collision");
             Destroy(gameObject);
         }
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (destroyOnTrigger && other.CompareTag(targetTagPlayer))
+        {
+            Debug.Log("Colidiu com o alvo via Trigger");
+            Destroy(gameObject);
+        }
+    }
 }

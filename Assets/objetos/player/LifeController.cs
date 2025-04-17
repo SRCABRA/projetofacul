@@ -20,6 +20,8 @@ public class LifeController : MonoBehaviour
     private Vector3[] originalPositions;
     private bool isGameOver = false; // Evita múltiplas execuções do Game Over
 
+    
+
     void Start()
     {
         pizzaBoxes = GetComponentsInChildren<Transform>();
@@ -54,6 +56,7 @@ public class LifeController : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
+        
         if (enableInvulnerability && collision.gameObject.CompareTag("Enemy") && !isInvulnerable)
         {
             if (enablePizzaThrowing) ThrowPizzaBox();
