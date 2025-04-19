@@ -14,10 +14,13 @@ public class BulletEnemyController : MonoBehaviour
 
     [Header("Collision Settings")]
     [Tooltip("Ativar destruição por colisão com o alvo")]
-    [SerializeField] private bool destroyOnCollision = true;
+    [SerializeField] private bool destroyOnCollision = false;
 
     [Tooltip("Ativar destruição por trigger com o alvo")]
     [SerializeField] private bool destroyOnTrigger = true;
+
+    [Tooltip("Destruir com qualquer colisão (independente da tag)")]
+    [SerializeField] private bool destroyOnAnyCollision = true;
 
     [Header("Debug (somente leitura)")]
     [Tooltip("Direção inicial da bala (calculada no Start)")]
@@ -51,7 +54,12 @@ public class BulletEnemyController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (destroyOnCollision && collision.gameObject.CompareTag(targetTagPlayer))
+        if (destroyOnAnyCollision)
+        {
+            Debug.Log("Colidiu com qualquer coisa via Collision");
+            Destroy(gameObject);
+        }
+        else if (destroyOnCollision && collision.gameObject.CompareTag(targetTagPlayer))
         {
             Debug.Log("Colidiu com o alvo via Collision");
             Destroy(gameObject);
@@ -60,7 +68,12 @@ public class BulletEnemyController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (destroyOnTrigger && other.CompareTag(targetTagPlayer))
+        if (destroyOnAnyCollision)
+        {
+            Debug.Log("Colidiu com qualquer coisa via Trigger");
+            Destroy(gameObject);
+        }
+        else if (destroyOnTrigger && other.CompareTag(targetTagPlayer))
         {
             Debug.Log("Colidiu com o alvo via Trigger");
             Destroy(gameObject);

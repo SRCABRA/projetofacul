@@ -136,6 +136,9 @@ MonoBehaviour:
   firePoint: {fileID: 5166129026159576842}
   fireRate: 4
   detectionRange: 50
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 256
   explosionEffect: {fileID: 1809022330002312, guid: ed511b7776af6174e9b1255c7a81e59c, type: 3}
 --- !u!54 &5847106634806383328
 Rigidbody:

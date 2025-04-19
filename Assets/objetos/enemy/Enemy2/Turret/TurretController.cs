@@ -2,21 +2,24 @@ using UnityEngine;
 
 public class TurretController : EnemyPai
 {
+    [Header("Turret Settings")]
     public GameObject bulletPrefab; // Prefab da bala
     public Transform firePoint; // Ponto de disparo
     public float fireRate = 4f; // Tempo entre os disparos
     private float fireTimer = 0f; // Temporizador interno
 
+    [Header("Detection")]
     public float detectionRange = 10f; // Distância de detecção do player
     private Transform playerTransform; // Referência ao jogador
+    public LayerMask obstacleMask; // Layer dos obstáculos (paredes, etc)
 
+    [Header("FX")]
     public GameObject explosionEffect; // Prefab da explosão
 
     protected override void Start()
     {
         base.Start();
 
-        // Encontra o player pela tag (certifique-se de que o jogador tem a tag "Player")
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
@@ -28,14 +31,11 @@ public class TurretController : EnemyPai
     {
         base.Update();
 
-        // Se o player não foi encontrado, não faz nada
         if (playerTransform == null) return;
 
-        // Calcula a distância até o player
         float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
 
-        // Se estiver dentro do alcance, atualiza o timer e atira
-        if (distanceToPlayer <= detectionRange)
+        if (distanceToPlayer <= detectionRange && CanSeePlayer())
         {
             fireTimer += Time.deltaTime;
 
@@ -47,26 +47,41 @@ public class TurretController : EnemyPai
         }
     }
 
-    // Método que dispara a BulletEnemy
+    private bool CanSeePlayer()
+    {
+        if (playerTransform == null) return false;
+
+        Vector3 direction = (playerTransform.position - transform.position).normalized;
+        float distance = Vector3.Distance(transform.position, playerTransform.position);
+
+        if (Physics.Raycast(transform.position, direction, out RaycastHit hit, distance, obstacleMask))
+        {
+            Debug.DrawLine(transform.position, hit.point, Color.red, 0.5f);
+            return false; // Obstáculo bloqueando
+        }
+
+        Debug.DrawLine(transform.position, playerTransform.position, Color.green, 0.5f);
+        return true; // Sem obstáculos
+    }
+
     void Shoot()
     {
         if (bulletPrefab != null && firePoint != null)
         {
-            Instantiate(bulletPrefab, firePoint.position, firePoint.rotation); // Cria a bala
+            Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
         }
     }
 
-    // Método de destruição com efeito
     protected override void Drop()
     {
         if (explosionEffect != null)
         {
             Instantiate(explosionEffect, transform.position, Quaternion.identity);
         }
-        base.Drop(); // Chama o método Drop da classe EnemyPai para destruir a torreta
+
+        base.Drop();
     }
 
-    // Gizmo para visualizar o alcance no editor
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;

@@ -219,6 +219,8 @@ MonoBehaviour:
   - {fileID: 0}
   speed: 2
   turretPrefab: {fileID: 4972133487427751404, guid: 3aba445a78eda6d4ba9aa4d7e36a0364, type: 3}
+  turretSpawnInterval: 15
+  pauseDuration: 1
 --- !u!114 &8918348753110520938
 MonoBehaviour:
   m_ObjectHideFlags: 0
