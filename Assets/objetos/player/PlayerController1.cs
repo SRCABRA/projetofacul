@@ -8,6 +8,8 @@ public class PlayerController1 : MonoBehaviour
     [Header("Configurações Gerais")]
     public bool enableMovement = true;
     public bool enableJump = true;
+    public bool enableVariableJump = true;
+    public bool enableAcceleratedFall = true;
     public bool enableStomp = true;
     public bool enableCameraFollow = true;
     public bool enableMinePlacement = true;
@@ -19,6 +21,23 @@ public class PlayerController1 : MonoBehaviour
     public float gravity = -10f;
     public float jumpForce = 5f;
     private bool isGrounded;
+
+    [Header("Pulo Variável")]
+    [SerializeField] private float variableJumpRiseSpeed = 10f;
+    [SerializeField] private float maxJumpTime = 0.3f;
+    [SerializeField] private float jumpHoldForce = 10f;
+    private float jumpTimeCounter;
+    private bool isJumping;
+
+    [Header("Queda Acelerada")]
+    [SerializeField] private float fallAcceleration = 2.0f;
+    [SerializeField] private float maxFallSpeed = -30f;
+    private bool isFalling = false;
+    private float fallTimer = 0f;
+
+    [Header("Efeito de Pulo")]
+    [SerializeField] private GameObject jumpVFXPrefab;
+
 
     [Header("Configurações de Detecção")]
     [SerializeField] private Transform foot;
@@ -110,12 +129,36 @@ public class PlayerController1 : MonoBehaviour
             animator.SetBool("jump", !isGrounded);
         }
 
-        if (enableJump && Input.GetButtonDown("Jump") && isGrounded)
+        // PULO INICIAL
+        if (enableJump && isGrounded && Input.GetButtonDown("Jump"))
         {
             gravity = jumpForce;
+            PlayJumpVFX();
+            isJumping = true;
+            jumpTimeCounter = maxJumpTime;
             timeInAir = 0f;
         }
 
+        // PULO VARIÁVEL (usa variableJumpRiseSpeed agora)
+        if (enableJump && enableVariableJump && Input.GetButton("Jump") && isJumping)
+        {
+            if (jumpTimeCounter > 0f)
+            {
+                gravity = variableJumpRiseSpeed;
+                jumpTimeCounter -= Time.deltaTime;
+            }
+            else
+            {
+                isJumping = false;
+            }
+        }
+
+        if (Input.GetButtonUp("Jump"))
+        {
+            isJumping = false;
+        }
+
+        // STOMP
         if (enableStomp && Input.GetButtonDown("Jump"))
         {
             if (Time.time - lastJumpTime < doubleClickTime)
@@ -125,17 +168,33 @@ public class PlayerController1 : MonoBehaviour
             lastJumpTime = Time.time;
         }
 
-        if (gravity > -10f)
-        {
-            gravity += -25f * Time.deltaTime;
-        }
-
-        controller.Move(new Vector3(0, gravity, 0) * Time.deltaTime);
-
+        // GRAVIDADE e QUEDA ACELERADA
         if (!isGrounded)
         {
+            if (enableAcceleratedFall && gravity < 0)
+            {
+                isFalling = true;
+                fallTimer += Time.deltaTime;
+                gravity += -fallAcceleration * fallTimer;
+                gravity = Mathf.Max(gravity, maxFallSpeed);
+            }
+            else
+            {
+                fallTimer = 0f;
+                isFalling = false;
+                gravity += -25f * Time.deltaTime;
+            }
+
             timeInAir += 10 * Time.deltaTime;
         }
+        else
+        {
+            fallTimer = 0f;
+            isFalling = false;
+        }
+
+        // MOVIMENTO VERTICAL
+        controller.Move(new Vector3(0, gravity, 0) * Time.deltaTime);
 
         if (enableCameraFollow)
         {
@@ -149,7 +208,6 @@ public class PlayerController1 : MonoBehaviour
             mineBuffSystem.PlaceMine(dropPosition);
         }
 
-        // ✅ NOVO COMPORTAMENTO DE COLISÃO DURANTE STOMP
         if (stompActivated && !isGrounded)
         {
             IgnoreAllEnemyCollisions(true);
@@ -160,6 +218,14 @@ public class PlayerController1 : MonoBehaviour
         }
     }
 
+    private void PlayJumpVFX()
+    {
+        if (jumpVFXPrefab != null)
+        {
+            Instantiate(jumpVFXPrefab, foot.position, Quaternion.identity);
+        }
+    }
+
     void ActivateStompAbility()
     {
         if (Time.time - lastAbilityTime >= abilityCooldown)
@@ -167,7 +233,6 @@ public class PlayerController1 : MonoBehaviour
             stompActivated = true;
             lastAbilityTime = Time.time;
             gravity = extraGravityForce;
-
             StartCoroutine(ActivateTemporaryInvulnerability());
         }
     }
@@ -175,16 +240,10 @@ public class PlayerController1 : MonoBehaviour
     private IEnumerator ActivateTemporaryInvulnerability()
     {
         SetInvulnerability(true);
-        
-        // Durante o stomp
         yield return new WaitForSeconds(invulnerabilityDuration);
-
-        // Espera mais 1 segundo extra após stomp
         yield return new WaitForSeconds(1f);
-
         SetInvulnerability(false);
     }
-
 
     public void SetInvulnerability(bool active)
     {
@@ -269,47 +328,41 @@ public class PlayerController1 : MonoBehaviour
         }
     }
 
-void OnControllerColliderHit(ControllerColliderHit hit)
-{
-    if (isInvulnerable && hit.gameObject.CompareTag("enemy"))
+    void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        CacheEnemyCollider(hit.collider);
-        return;
-    }
-
-    // ✅ Stomp pisa no inimigo
-    if (stompActivated && hit.gameObject.CompareTag("enemy"))
-    {
-        // Verifica se a colisão veio de cima
-        Vector3 contactNormal = hit.normal;
-        bool isFromAbove = Vector3.Dot(contactNormal, Vector3.up) > 0.5f;
-
-        if (isFromAbove)
+        if (isInvulnerable && hit.gameObject.CompareTag("enemy"))
         {
-            Destroy(hit.gameObject); // Destroi o inimigo
-            Debug.Log("Inimigo pisado durante o stomp!");
+            CacheEnemyCollider(hit.collider);
             return;
         }
+
+        if (stompActivated && hit.gameObject.CompareTag("enemy"))
+        {
+            Vector3 contactNormal = hit.normal;
+            bool isFromAbove = Vector3.Dot(contactNormal, Vector3.up) > 0.5f;
+
+            if (isFromAbove)
+            {
+                Destroy(hit.gameObject);
+                Debug.Log("Inimigo pisado durante o stomp!");
+                return;
+            }
+        }
+
+        if (stompActivated && ((1 << hit.gameObject.layer) & colisaoLayer) != 0)
+        {
+            float newScale = 1f + (timeInAir * scaleIncreasePerSecond);
+            Vector3 areaAttackScale = new Vector3(newScale, newScale, newScale);
+
+            GameObject areaAttackInstance = Instantiate(AreaAttack, foot.position, Quaternion.identity);
+            areaAttackInstance.transform.localScale = areaAttackScale;
+
+            Debug.Log($"Área de ataque instanciada com escala {areaAttackScale}");
+
+            stompActivated = false;
+            IgnoreAllEnemyCollisions(false);
+        }
     }
-
-    // ✅ Ao tocar no chão, instancia a área de ataque e aplica escala em todos (pai + filhos)
-    if (stompActivated && ((1 << hit.gameObject.layer) & colisaoLayer) != 0)
-    {
-        float newScale = 1f + (timeInAir * scaleIncreasePerSecond);
-        Vector3 areaAttackScale = new Vector3(newScale, newScale, newScale);
-
-        GameObject areaAttackInstance = Instantiate(AreaAttack, foot.position, Quaternion.identity);
-        areaAttackInstance.transform.localScale = areaAttackScale;
-
-        // ✅ Todos os filhos crescem juntos automaticamente por serem filhos no transform
-        Debug.Log($"Área de ataque instanciada com escala {areaAttackScale}");
-
-        stompActivated = false;
-        IgnoreAllEnemyCollisions(false);
-    }
-}
-
-
 
     void OnTriggerEnter(Collider other)
     {

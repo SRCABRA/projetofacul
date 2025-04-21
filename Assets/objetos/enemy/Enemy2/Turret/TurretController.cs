@@ -1,20 +1,34 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
 public class TurretController : EnemyPai
 {
     [Header("Turret Settings")]
-    public GameObject bulletPrefab; // Prefab da bala
-    public Transform firePoint; // Ponto de disparo
-    public float fireRate = 4f; // Tempo entre os disparos
-    private float fireTimer = 0f; // Temporizador interno
+    public GameObject bulletPrefab;
+    public Transform firePoint;
+    public float fireRate = 4f;
+    private float fireTimer = 0f;
 
     [Header("Detection")]
-    public float detectionRange = 10f; // Distância de detecção do player
-    private Transform playerTransform; // Referência ao jogador
-    public LayerMask obstacleMask; // Layer dos obstáculos (paredes, etc)
+    public float detectionRange = 10f;
+    private Transform playerTransform;
+    public LayerMask obstacleMask;
 
     [Header("FX")]
-    public GameObject explosionEffect; // Prefab da explosão
+    public GameObject explosionEffect;
+
+    [Header("Visão / Piscada")]
+    public bool enableVisionBlink = true;
+    [SerializeField] private float blinkDuration = 0.2f;
+    [SerializeField] private int blinkCount = 2;
+    [SerializeField] private Color colorWhenSeesPlayer = Color.red;
+    [SerializeField] private Color colorWhenNotSeeing = Color.green;
+
+    private Renderer[] allRenderers;
+    private Color[] originalColors;
+    private bool lastStateCanSeePlayer = false;
+    private bool blinking = false;
 
     protected override void Start()
     {
@@ -25,6 +39,18 @@ public class TurretController : EnemyPai
         {
             playerTransform = player.transform;
         }
+
+        // Cache all renderers (self + children)
+        allRenderers = GetComponentsInChildren<Renderer>();
+        originalColors = new Color[allRenderers.Length];
+
+        for (int i = 0; i < allRenderers.Length; i++)
+        {
+            if (allRenderers[i].material.HasProperty("_Color"))
+            {
+                originalColors[i] = allRenderers[i].material.color;
+            }
+        }
     }
 
     protected override void Update()
@@ -34,17 +60,32 @@ public class TurretController : EnemyPai
         if (playerTransform == null) return;
 
         float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
+        bool canSee = false;
 
-        if (distanceToPlayer <= detectionRange && CanSeePlayer())
+        if (distanceToPlayer <= detectionRange)
         {
-            fireTimer += Time.deltaTime;
+            canSee = CanSeePlayer();
 
-            if (fireTimer >= fireRate)
+            if (canSee)
             {
-                Shoot(); // Dispara
-                fireTimer = 0f; // Reseta o temporizador
+                fireTimer += Time.deltaTime;
+
+                if (fireTimer >= fireRate)
+                {
+                    Shoot();
+                    fireTimer = 0f;
+                }
             }
         }
+
+        // Piscar se houve mudança de estado
+        if (enableVisionBlink && canSee != lastStateCanSeePlayer && !blinking)
+        {
+            Color blinkColor = canSee ? colorWhenSeesPlayer : colorWhenNotSeeing;
+            StartCoroutine(BlinkColor(blinkColor));
+        }
+
+        lastStateCanSeePlayer = canSee;
     }
 
     private bool CanSeePlayer()
@@ -57,11 +98,11 @@ public class TurretController : EnemyPai
         if (Physics.Raycast(transform.position, direction, out RaycastHit hit, distance, obstacleMask))
         {
             Debug.DrawLine(transform.position, hit.point, Color.red, 0.5f);
-            return false; // Obstáculo bloqueando
+            return false;
         }
 
         Debug.DrawLine(transform.position, playerTransform.position, Color.green, 0.5f);
-        return true; // Sem obstáculos
+        return true;
     }
 
     void Shoot()
@@ -81,6 +122,58 @@ public class TurretController : EnemyPai
 
         base.Drop();
     }
+
+    private IEnumerator BlinkColor(Color blinkColor)
+    {
+        blinking = true;
+
+        for (int i = 0; i < blinkCount; i++)
+        {
+            SetColorToAll(blinkColor);
+            yield return new WaitForSeconds(blinkDuration);
+            RestoreOriginalColors();
+            yield return new WaitForSeconds(blinkDuration);
+        }
+
+        blinking = false;
+    }
+
+    private void SetColorToAll(Color color)
+    {
+        foreach (Renderer rend in allRenderers)
+        {
+            if (rend.material.HasProperty("_Color"))
+            {
+                rend.material.color = color;
+            }
+
+            if (rend.material.HasProperty("_EmissionColor"))
+            {
+                Color emissionColor = color * 2f; // Aumenta intensidade do brilho
+                rend.material.SetColor("_EmissionColor", emissionColor);
+                rend.material.EnableKeyword("_EMISSION");
+            }
+        }
+    }
+
+
+private void RestoreOriginalColors()
+{
+    for (int i = 0; i < allRenderers.Length; i++)
+    {
+        if (allRenderers[i].material.HasProperty("_Color"))
+        {
+            allRenderers[i].material.color = originalColors[i];
+        }
+
+        if (allRenderers[i].material.HasProperty("_EmissionColor"))
+        {
+            allRenderers[i].material.SetColor("_EmissionColor", Color.black);
+            allRenderers[i].material.DisableKeyword("_EMISSION");
+        }
+    }
+}
+
 
     private void OnDrawGizmosSelected()
     {

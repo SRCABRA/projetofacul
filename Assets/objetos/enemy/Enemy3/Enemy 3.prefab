@@ -245,7 +245,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e658aa681924a5f41a445f78e19b1f2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deathEffectPrefab: {fileID: 1277154925287174, guid: 3b517eddec185dd4a830743a742ad00b, type: 3}
+  deathEffectPrefab: {fileID: 1879769179923522, guid: 65932b7368590234d8163da03c2055d8, type: 3}
 --- !u!1001 &6773534869435513889
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -311,6 +311,10 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -2771249810493347087, guid: 259ed27343dbdc4409127db7196d5f70, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 62652203f068f8144938b6546ab88224, type: 2}
+    - target: {fileID: -2771249810493347087, guid: 259ed27343dbdc4409127db7196d5f70, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
       objectReference: {fileID: 2100000, guid: 96d60b27b146e564ea3f9944dcf9d801, type: 2}
@@ -322,6 +326,10 @@ PrefabInstance:
       propertyPath: m_Materials.Array.size
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 1454597071884414375, guid: 259ed27343dbdc4409127db7196d5f70, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 62652203f068f8144938b6546ab88224, type: 2}
     - target: {fileID: 1454597071884414375, guid: 259ed27343dbdc4409127db7196d5f70, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
       value: 

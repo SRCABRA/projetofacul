@@ -14,6 +14,9 @@ public class ImpactTextEffect : MonoBehaviour
     public float shakeDuration = 0.2f;
     public float shakeAmount = 10f;
 
+    [Header("Configuração de Impacto")]
+    public bool simultaneousImpact = false;
+
     private Vector3 originalPanelPos;
 
     void OnEnable()
@@ -28,15 +31,35 @@ public class ImpactTextEffect : MonoBehaviour
 
     IEnumerator ShowTextWithImpact()
     {
-        for (int i = 0; i < words.Length; i++)
+        if (simultaneousImpact)
         {
-            TextMeshProUGUI word = words[i];
-            word.gameObject.SetActive(true);
+            // Ativa todos os textos
+            foreach (TextMeshProUGUI word in words)
+            {
+                word.gameObject.SetActive(true);
+            }
 
-            yield return StartCoroutine(ScaleEffect(word.transform));
+            // Inicia a animação de escala para todos ao mesmo tempo
+            foreach (TextMeshProUGUI word in words)
+            {
+                StartCoroutine(ScaleEffect(word.transform));
+            }
+
+            // Faz o shake uma única vez
             yield return StartCoroutine(PanelShake());
+        }
+        else
+        {
+            for (int i = 0; i < words.Length; i++)
+            {
+                TextMeshProUGUI word = words[i];
+                word.gameObject.SetActive(true);
 
-            yield return new WaitForSecondsRealtime(delayBetweenWords); // ← Usa tempo real
+                yield return StartCoroutine(ScaleEffect(word.transform));
+                yield return StartCoroutine(PanelShake());
+
+                yield return new WaitForSecondsRealtime(delayBetweenWords);
+            }
         }
     }
 
@@ -49,7 +72,7 @@ public class ImpactTextEffect : MonoBehaviour
         while (elapsedTime < scaleDuration)
         {
             textTransform.localScale = Vector3.Lerp(originalScale, targetScale, elapsedTime / scaleDuration);
-            elapsedTime += Time.unscaledDeltaTime; // ← tempo real
+            elapsedTime += Time.unscaledDeltaTime;
             yield return null;
         }
 
@@ -59,7 +82,7 @@ public class ImpactTextEffect : MonoBehaviour
         while (elapsedTime < scaleDuration)
         {
             textTransform.localScale = Vector3.Lerp(targetScale, originalScale, elapsedTime / scaleDuration);
-            elapsedTime += Time.unscaledDeltaTime; // ← tempo real
+            elapsedTime += Time.unscaledDeltaTime;
             yield return null;
         }
 
@@ -74,7 +97,7 @@ public class ImpactTextEffect : MonoBehaviour
             Vector2 randomOffset = Random.insideUnitCircle * shakeAmount;
             panelTransform.anchoredPosition = originalPanelPos + new Vector3(randomOffset.x, randomOffset.y, 0);
 
-            elapsed += Time.unscaledDeltaTime; // ← tempo real
+            elapsed += Time.unscaledDeltaTime;
             yield return null;
         }
 

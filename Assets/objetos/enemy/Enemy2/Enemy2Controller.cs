@@ -20,9 +20,15 @@ public class Enemy2Controller : EnemyPai
     [Tooltip("Tempo em que o inimigo fica parado após spawnar a torreta")]
     public float pauseDuration = 1f;
 
+    // ⬇️ Novo: Referência ao Animator e posição anterior
+    private Animator animator;
+    private Vector3 lastPosition;
+
     protected override void Start()
     {
         base.Start();
+        animator = GetComponentInChildren<Animator>(); // Garante que o Animator está no mesmo GameObject
+        lastPosition = transform.position;
         StartCoroutine(PauseMovement());
     }
 
@@ -30,10 +36,27 @@ public class Enemy2Controller : EnemyPai
     {
         base.Update();
 
-        if (isPaused || waypoints.Length == 0) return;
+        if (isPaused || waypoints.Length == 0)
+        {
+            UpdateAnimatorSpeed(0f); // Se estiver pausado, zera a velocidade
+            return;
+        }
 
         Transform targetWaypoint = waypoints[currentWaypointIndex];
         transform.position = Vector3.MoveTowards(transform.position, targetWaypoint.position, speed * Time.deltaTime);
+        
+        Vector3 direction = (targetWaypoint.position - transform.position).normalized;
+        if (direction != Vector3.zero)
+        {
+            Quaternion lookRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, 10f * Time.deltaTime);
+        }
+
+
+        float currentSpeed = (transform.position - lastPosition).magnitude / Time.deltaTime;
+        UpdateAnimatorSpeed(currentSpeed);
+        Debug.Log("Enemy Speed: " + currentSpeed);
+        lastPosition = transform.position;
 
         if (Vector3.Distance(transform.position, targetWaypoint.position) < 1f)
         {
@@ -58,6 +81,7 @@ public class Enemy2Controller : EnemyPai
         {
             yield return new WaitForSeconds(turretSpawnInterval);
             isPaused = true;
+            UpdateAnimatorSpeed(0f); // Zera animação enquanto está parado
             InstantiateTurret();
             yield return new WaitForSeconds(pauseDuration);
             isPaused = false;
@@ -68,11 +92,23 @@ public class Enemy2Controller : EnemyPai
     {
         if (turretPrefab != null)
         {
-            Instantiate(turretPrefab, transform.position, Quaternion.identity);
+            Vector3 spawnOffset = transform.right * 1.5f; // Ajusta 1.5f conforme a distância lateral desejada
+            Vector3 spawnPosition = transform.position + spawnOffset;
+
+            Instantiate(turretPrefab, spawnPosition, Quaternion.identity);
+
         }
         else
         {
             Debug.LogWarning("Turret Prefab não foi atribuído no Inspector!");
+        }
+    }
+
+    void UpdateAnimatorSpeed(float currentSpeed)
+    {
+        if (animator != null)
+        {
+            animator.SetFloat("Speed", currentSpeed);
         }
     }
 }

@@ -22,6 +22,10 @@ public class BulletEnemyController : MonoBehaviour
     [Tooltip("Destruir com qualquer colisão (independente da tag)")]
     [SerializeField] private bool destroyOnAnyCollision = true;
 
+    [Header("VFX")]
+    [Tooltip("Efeito a ser instanciado ao colidir com o player")]
+    [SerializeField] private GameObject hitVFXPrefab;
+
     [Header("Debug (somente leitura)")]
     [Tooltip("Direção inicial da bala (calculada no Start)")]
     [SerializeField] private Vector3 direction;
@@ -57,11 +61,13 @@ public class BulletEnemyController : MonoBehaviour
         if (destroyOnAnyCollision)
         {
             Debug.Log("Colidiu com qualquer coisa via Collision");
+            TryPlayHitVFX(collision.contacts[0].point);
             Destroy(gameObject);
         }
         else if (destroyOnCollision && collision.gameObject.CompareTag(targetTagPlayer))
         {
             Debug.Log("Colidiu com o alvo via Collision");
+            TryPlayHitVFX(collision.contacts[0].point);
             Destroy(gameObject);
         }
     }
@@ -71,12 +77,22 @@ public class BulletEnemyController : MonoBehaviour
         if (destroyOnAnyCollision)
         {
             Debug.Log("Colidiu com qualquer coisa via Trigger");
+            TryPlayHitVFX(transform.position);
             Destroy(gameObject);
         }
         else if (destroyOnTrigger && other.CompareTag(targetTagPlayer))
         {
             Debug.Log("Colidiu com o alvo via Trigger");
+            TryPlayHitVFX(transform.position);
             Destroy(gameObject);
+        }
+    }
+
+    private void TryPlayHitVFX(Vector3 position)
+    {
+        if (hitVFXPrefab != null)
+        {
+            Instantiate(hitVFXPrefab, position, Quaternion.identity);
         }
     }
 }
