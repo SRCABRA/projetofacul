@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 
 public class UISelector : MonoBehaviour
 {
-    public GameObject firstSelected;
+    public GameObject firstButtonOfDeathPanel;
 
     void OnEnable()
     {
@@ -15,6 +15,6 @@ public class UISelector : MonoBehaviour
     {
         yield return null;
         EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(firstSelected);
+        EventSystem.current.SetSelectedGameObject(firstButtonOfDeathPanel);
     }
 }

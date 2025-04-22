@@ -4,35 +4,62 @@ using TMPro;
 
 public class ImpactTextEffect : MonoBehaviour
 {
-    public TextMeshProUGUI[] words; // Array de palavras (Cada palavra separada em um TextMeshProUGUI)
-    public float delayBetweenWords = 0.3f; // Tempo entre a aparição de cada palavra
-    public float impactScale = 1.5f; // O tamanho máximo da "explosão"
-    public float scaleDuration = 0.2f; // Tempo do efeito de "batida"
+    public TextMeshProUGUI[] words;
+    public float delayBetweenWords = 0.3f;
+    public float impactScale = 1.5f;
+    public float scaleDuration = 0.2f;
 
     [Header("Tela de Tremor")]
-    public RectTransform panelTransform; // O painel que vai tremer (UI)
-    public float shakeDuration = 0.2f; // Tempo do tremor (agora menor para sincronizar)
-    public float shakeAmount = 10f; // Intensidade do tremor
+    public RectTransform panelTransform;
+    public float shakeDuration = 0.2f;
+    public float shakeAmount = 10f;
 
-    private Vector3 originalPanelPos; // Guarda a posição original do painel
+    [Header("Configuração de Impacto")]
+    public bool simultaneousImpact = false;
 
-    void Start()
+    private Vector3 originalPanelPos;
+
+    void OnEnable()
     {
-        originalPanelPos = panelTransform.anchoredPosition; // Salva posição original
-        StartCoroutine(ShowTextWithImpact());
+        originalPanelPos = panelTransform.anchoredPosition;
+
+        if (panelTransform.gameObject.activeSelf)
+        {
+            StartCoroutine(ShowTextWithImpact());
+        }
     }
 
     IEnumerator ShowTextWithImpact()
     {
-        for (int i = 0; i < words.Length; i++)
+        if (simultaneousImpact)
         {
-            TextMeshProUGUI word = words[i];
-            word.gameObject.SetActive(true); // Ativa a palavra
+            // Ativa todos os textos
+            foreach (TextMeshProUGUI word in words)
+            {
+                word.gameObject.SetActive(true);
+            }
 
-            yield return StartCoroutine(ScaleEffect(word.transform)); // 🔥 Impacta a palavra primeiro
-            yield return StartCoroutine(PanelShake()); // 🔥 Depois o tremor da tela
-            
-            yield return new WaitForSeconds(delayBetweenWords); // Espera um pouco antes da próxima palavra
+            // Inicia a animação de escala para todos ao mesmo tempo
+            foreach (TextMeshProUGUI word in words)
+            {
+                StartCoroutine(ScaleEffect(word.transform));
+            }
+
+            // Faz o shake uma única vez
+            yield return StartCoroutine(PanelShake());
+        }
+        else
+        {
+            for (int i = 0; i < words.Length; i++)
+            {
+                TextMeshProUGUI word = words[i];
+                word.gameObject.SetActive(true);
+
+                yield return StartCoroutine(ScaleEffect(word.transform));
+                yield return StartCoroutine(PanelShake());
+
+                yield return new WaitForSecondsRealtime(delayBetweenWords);
+            }
         }
     }
 
@@ -45,7 +72,7 @@ public class ImpactTextEffect : MonoBehaviour
         while (elapsedTime < scaleDuration)
         {
             textTransform.localScale = Vector3.Lerp(originalScale, targetScale, elapsedTime / scaleDuration);
-            elapsedTime += Time.deltaTime;
+            elapsedTime += Time.unscaledDeltaTime;
             yield return null;
         }
 
@@ -55,7 +82,7 @@ public class ImpactTextEffect : MonoBehaviour
         while (elapsedTime < scaleDuration)
         {
             textTransform.localScale = Vector3.Lerp(targetScale, originalScale, elapsedTime / scaleDuration);
-            elapsedTime += Time.deltaTime;
+            elapsedTime += Time.unscaledDeltaTime;
             yield return null;
         }
 
@@ -70,10 +97,10 @@ public class ImpactTextEffect : MonoBehaviour
             Vector2 randomOffset = Random.insideUnitCircle * shakeAmount;
             panelTransform.anchoredPosition = originalPanelPos + new Vector3(randomOffset.x, randomOffset.y, 0);
 
-            elapsed += Time.deltaTime;
+            elapsed += Time.unscaledDeltaTime;
             yield return null;
         }
 
-        panelTransform.anchoredPosition = originalPanelPos; // Retorna à posição original
+        panelTransform.anchoredPosition = originalPanelPos;
     }
 }

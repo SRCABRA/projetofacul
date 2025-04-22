@@ -23,6 +23,8 @@ public class WaterController : MonoBehaviour
     private Vector3 initialPosition;
     private Quaternion initialRotation;
 
+    private float waterTime = 0f; // tempo customizado que respeita o pause
+
     void Start()
     {
         currentSpeed = normalSpeed;
@@ -41,12 +43,19 @@ public class WaterController : MonoBehaviour
 
     void Update()
     {
+        // Impede movimentação com o jogo pausado ou praticamente pausado
+        if (Time.timeScale < 0.01f) return;
+
+        // Garante um deltaTime mínimo para evitar bugs em slow motion
+        float dt = Mathf.Max(Time.deltaTime, 0.02f);
+
+        waterTime += dt;
+
         Vector3 position = transform.position;
 
         if (risingFast)
         {
-            // Subida suave até o alvo
-            float newY = Mathf.SmoothDamp(position.y, fastTargetY, ref velocity, smoothTime, Mathf.Infinity, Time.deltaTime);
+            float newY = Mathf.SmoothDamp(position.y, fastTargetY, ref velocity, smoothTime, Mathf.Infinity, dt);
 
             if (Mathf.Abs(newY - fastTargetY) < 0.01f)
             {
@@ -61,20 +70,19 @@ public class WaterController : MonoBehaviour
         }
         else
         {
-            // Subida normal com leve aceleração
-            position += new Vector3(0f, currentSpeed, 0f);
+            position += new Vector3(0f, currentSpeed * dt, 0f);
             transform.position = position;
-            currentSpeed += accelerationCurve;
+            currentSpeed += accelerationCurve * dt;
         }
 
-        // Oscilação suave
         ApplyWaterBobbing();
     }
 
     private void ApplyWaterBobbing()
     {
-        float bobbingOffset = Mathf.Sin(Time.time * bobbingFrequency) * bobbingAmplitude;
-        float rotationOffset = Mathf.Sin(Time.time * rotationFrequency) * rotationAmplitude;
+        // Usa o tempo controlado manualmente
+        float bobbingOffset = Mathf.Sin(waterTime * bobbingFrequency) * bobbingAmplitude;
+        float rotationOffset = Mathf.Sin(waterTime * rotationFrequency) * rotationAmplitude;
 
         // Aplica a oscilação na posição Y
         Vector3 pos = transform.position;

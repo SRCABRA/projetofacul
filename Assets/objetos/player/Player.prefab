@@ -241,6 +241,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enableMovement: 1
   enableJump: 1
+  enableVariableJump: 1
+  enableAcceleratedFall: 1
   enableStomp: 1
   enableCameraFollow: 1
   enableMinePlacement: 1
@@ -249,6 +251,12 @@ MonoBehaviour:
   speed: 11
   gravity: -2
   jumpForce: 15
+  variableJumpRiseSpeed: 10
+  maxJumpTime: 0.3
+  jumpHoldForce: 10
+  fallAcceleration: 2
+  maxFallSpeed: -30
+  jumpVFXPrefab: {fileID: 1730680232597524, guid: 1d5b2d0a23c3532499a392d29b43ba21, type: 3}
   foot: {fileID: 9049142198123414510}
   colisaoLayer:
     serializedVersion: 2

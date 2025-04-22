@@ -14,10 +14,17 @@ public class BulletEnemyController : MonoBehaviour
 
     [Header("Collision Settings")]
     [Tooltip("Ativar destruição por colisão com o alvo")]
-    [SerializeField] private bool destroyOnCollision = true;
+    [SerializeField] private bool destroyOnCollision = false;
 
     [Tooltip("Ativar destruição por trigger com o alvo")]
     [SerializeField] private bool destroyOnTrigger = true;
+
+    [Tooltip("Destruir com qualquer colisão (independente da tag)")]
+    [SerializeField] private bool destroyOnAnyCollision = true;
+
+    [Header("VFX")]
+    [Tooltip("Efeito a ser instanciado ao colidir com o player")]
+    [SerializeField] private GameObject hitVFXPrefab;
 
     [Header("Debug (somente leitura)")]
     [Tooltip("Direção inicial da bala (calculada no Start)")]
@@ -51,19 +58,41 @@ public class BulletEnemyController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (destroyOnCollision && collision.gameObject.CompareTag(targetTagPlayer))
+        if (destroyOnAnyCollision)
+        {
+            Debug.Log("Colidiu com qualquer coisa via Collision");
+            TryPlayHitVFX(collision.contacts[0].point);
+            Destroy(gameObject);
+        }
+        else if (destroyOnCollision && collision.gameObject.CompareTag(targetTagPlayer))
         {
             Debug.Log("Colidiu com o alvo via Collision");
+            TryPlayHitVFX(collision.contacts[0].point);
             Destroy(gameObject);
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (destroyOnTrigger && other.CompareTag(targetTagPlayer))
+        if (destroyOnAnyCollision)
+        {
+            Debug.Log("Colidiu com qualquer coisa via Trigger");
+            TryPlayHitVFX(transform.position);
+            Destroy(gameObject);
+        }
+        else if (destroyOnTrigger && other.CompareTag(targetTagPlayer))
         {
             Debug.Log("Colidiu com o alvo via Trigger");
+            TryPlayHitVFX(transform.position);
             Destroy(gameObject);
+        }
+    }
+
+    private void TryPlayHitVFX(Vector3 position)
+    {
+        if (hitVFXPrefab != null)
+        {
+            Instantiate(hitVFXPrefab, position, Quaternion.identity);
         }
     }
 }
