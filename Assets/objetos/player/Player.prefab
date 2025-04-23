@@ -248,7 +248,7 @@ MonoBehaviour:
   enableMinePlacement: 1
   enableBuffSystem: 1
   enableAnimations: 1
-  speed: 11
+  speed: 16
   gravity: -2
   jumpForce: 15
   variableJumpRiseSpeed: 10
