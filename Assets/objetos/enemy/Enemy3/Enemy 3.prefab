@@ -184,7 +184,7 @@ MonoBehaviour:
   enableDamage: 1
   enableFlashEffect: 1
   enableJumpEffect: 1
-  life: 25
+  life: 200
   danoBullet: 4
   danoAreaAttack: 6
   danoBackpack: 3
