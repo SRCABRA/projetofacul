@@ -28,7 +28,7 @@ public class PauseMenu : MonoBehaviour
     {
         isPaused = true;
         pauseCanvas.SetActive(true);
-        Time.timeScale = 0.03f;
+        Time.timeScale = 0.003f;
 
         // Garante que um botão esteja selecionado para navegação com controle
         EventSystem.current.SetSelectedGameObject(null); // Limpa qualquer seleção anterior
