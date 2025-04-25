@@ -7,5 +7,9 @@ public class GameOverUI : MonoBehaviour
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
+
+    public void SairDoGame(){
+        Application.Quit();
+    }
 }
 

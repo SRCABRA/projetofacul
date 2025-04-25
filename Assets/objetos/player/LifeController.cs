@@ -143,12 +143,25 @@ public class LifeController : MonoBehaviour
         ShowDeathScreen(); // Agora a tela aparece depois da espera
     }
 
-    void ShowDeathScreen()
+void ShowDeathScreen()
+{
+    Debug.Log("Iniciando transição para tela de Game Over.");
+
+    ScreenTransition transition = FindFirstObjectByType<ScreenTransition>();
+    if (transition != null)
     {
-        Debug.Log("Exibindo tela de Game Over.");
-        if (deathScreen != null)
+        transition.StartTransition(() =>
         {
-            deathScreen.SetActive(true); // Ativa a tela de morte
-        }
+            if (deathScreen != null)
+                deathScreen.SetActive(true);
+        });
     }
+    else
+    {
+        Debug.LogWarning("Nenhum ScreenTransition encontrado na cena!");
+        if (deathScreen != null)
+            deathScreen.SetActive(true);
+    }
+}
+
 }
