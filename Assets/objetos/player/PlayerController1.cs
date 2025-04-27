@@ -38,7 +38,6 @@ public class PlayerController1 : MonoBehaviour
     [Header("Efeito de Pulo")]
     [SerializeField] private GameObject jumpVFXPrefab;
 
-
     [Header("Configurações de Detecção")]
     [SerializeField] private Transform foot;
     [SerializeField] private LayerMask colisaoLayer;
@@ -139,7 +138,7 @@ public class PlayerController1 : MonoBehaviour
             timeInAir = 0f;
         }
 
-        // PULO VARIÁVEL (usa variableJumpRiseSpeed agora)
+        // PULO VARIÁVEL
         if (enableJump && enableVariableJump && Input.GetButton("Jump") && isJumping)
         {
             if (jumpTimeCounter > 0f)
@@ -358,6 +357,9 @@ public class PlayerController1 : MonoBehaviour
             areaAttackInstance.transform.localScale = areaAttackScale;
 
             Debug.Log($"Área de ataque instanciada com escala {areaAttackScale}");
+
+            // AQUI: tremer a câmera!
+            ManualCameraShake.Instance?.Shake(0.2f, 0.3f);
 
             stompActivated = false;
             IgnoreAllEnemyCollisions(false);

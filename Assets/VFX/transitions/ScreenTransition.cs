@@ -22,6 +22,8 @@ public class ScreenTransition : MonoBehaviour
     private bool isTransitioning = false;
     private Action onTransitionComplete;
 
+    
+
     void Awake()
     {
         CreateCanvasAndBars();

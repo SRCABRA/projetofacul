@@ -5,6 +5,8 @@ public class PlayerShooter : MonoBehaviour
     private float timer;
     public GameObject bullet;
     public float shootRange = 40f; // Distância máxima para atirar
+
+    public float cooldown = 1f;
     public LayerMask obstacleMask; // Camadas dos obstáculos (defina no Inspector)
 
     void Start()
@@ -15,7 +17,7 @@ public class PlayerShooter : MonoBehaviour
     void Update()
     {
         timer += Time.deltaTime;
-        if (timer > 1f)
+        if (timer > cooldown)
         {
             GameObject nearestEnemy = GetNearestEnemy();
             if (nearestEnemy != null)
