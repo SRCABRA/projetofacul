@@ -8,7 +8,7 @@ public class MenuController : MonoBehaviour
 
 {
     public void EntrarNoJogo(){
-        SceneManager.LoadScene("teste2");
+        SceneManager.LoadScene("Testecenario");
     }
 
     public void Opções(){

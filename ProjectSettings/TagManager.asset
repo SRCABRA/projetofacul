@@ -21,6 +21,7 @@ TagManager:
   - CameraClose
   - BulletEnemy
   - lixo
+  - water
   layers:
   - Default
   - TransparentFX
@@ -32,7 +33,7 @@ TagManager:
   - enemy
   - obstacleMask
   - llixo
-  - 
+  - LayerMask
   - 
   - 
   - 
