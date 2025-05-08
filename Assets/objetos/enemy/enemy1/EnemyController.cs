@@ -39,41 +39,42 @@ public class EnemyController : EnemyPai
     private GameObject carriedPizzaBox;
     private Vector3 lastPosition;
 
-    protected override void Start()
-    {
+    protected override void Start(){
         base.Start();
         wanderTimer = wanderInterval;
         lastPosition = transform.position;
     }
 
+
+
     protected override void Update()
     {
         base.Update();
 
-        if (!enableMovement)
-        {
+        if (!enableMovement){
             SetSpeed(0f);
             return;
         }
 
-        if (PlayerInSight())
-        {
+        if (PlayerInSight()){
             FindClosestPlayer();
             MoveTowardsTarget();
         }
-        else
-        {
+        else{
             PatrolBehavior();
         }
 
         UpdateAnimationSpeed();
 
-        // Atualiza o estado do solo no Animator
+
         if (animator != null)
         {
             animator.SetBool("isGround", IsGrounded());
         }
     }
+
+
+
 
     private void UpdateAnimationSpeed()
     {
