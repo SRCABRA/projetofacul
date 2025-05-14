@@ -70,10 +70,13 @@ public class WaterController : MonoBehaviour
         }
         else
         {
-            position += new Vector3(0f, currentSpeed * dt, 0f);
+            float heightOffset = currentSpeed * dt + 0.5f * accelerationCurve * dt * dt;
+            position.y += heightOffset;
             transform.position = position;
+
             currentSpeed += accelerationCurve * dt;
         }
+
 
         ApplyWaterBobbing();
     }
