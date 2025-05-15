@@ -1,8 +1,9 @@
 using UnityEngine;
+using Cinemachine;
 
 public class CameraTiltController : MonoBehaviour
 {
-    public Transform cameraTarget;
+    public CinemachineVirtualCamera virtualCam;
 
     [Header("Horizontal Settings")]
     public float maxHorizontalTilt = 20f;
@@ -18,30 +19,43 @@ public class CameraTiltController : MonoBehaviour
     public float mouseSensitivityMultiplier = 0.5f;
     public float mouseThreshold = 0.1f;
 
+    [Header("Composer Offset Settings")]
+    public float maxOffsetX = 2f;
+    public float maxOffsetY = 1f;
+    public float offsetSmoothTime = 0.2f;
+
     private float currentYaw = 0f;
     private float currentPitch = 0f;
     private float yawVelocity = 0f;
     private float pitchVelocity = 0f;
 
+    private Vector2 offsetVelocity;
+    private Vector2 currentOffset;
+
+    private CinemachineComposer composer;
+
+    void Start()
+    {
+        if (virtualCam != null)
+            virtualCam.TryGetComponent(out composer);
+    }
+
     void Update()
     {
-        // Leitura do mouse
+        if (composer == null) return;
+
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
-
-        // Leitura do controle
         float rightStickX = Input.GetAxis("RightStickHorizontal");
-        float rightStickY = Input.GetAxis("RightStickVertical"); // crie esse no Input Manager (5th axis, geralmente)
+        float rightStickY = Input.GetAxis("RightStickVertical");
 
-        // Processar mouse input com curva suave
         float processedMouseX = ProcessMouseInput(mouseX);
         float processedMouseY = ProcessMouseInput(mouseY);
 
-        // Combina inputs
         float inputYaw = processedMouseX + rightStickX;
-        float inputPitch = -(processedMouseY + rightStickY); // invertido pra cima ser positivo
+        float inputPitch = -(processedMouseY + rightStickY);
 
-        // ROTACAO HORIZONTAL (YAW)
+        // Rotação de inclinação (Pitch/Yaw visual)
         if (Mathf.Abs(inputYaw) > 0.01f)
         {
             currentYaw += inputYaw * horizontalSpeed * Time.deltaTime;
@@ -52,7 +66,6 @@ public class CameraTiltController : MonoBehaviour
             currentYaw = Mathf.SmoothDamp(currentYaw, 0f, ref yawVelocity, 1f / horizontalReturnSpeed);
         }
 
-        // ROTACAO VERTICAL (PITCH)
         if (Mathf.Abs(inputPitch) > 0.01f)
         {
             currentPitch += inputPitch * verticalSpeed * Time.deltaTime;
@@ -63,9 +76,17 @@ public class CameraTiltController : MonoBehaviour
             currentPitch = Mathf.SmoothDamp(currentPitch, 0f, ref pitchVelocity, 1f / verticalReturnSpeed);
         }
 
-        // Aplica rotação baseada nos dois eixos
-        transform.position = cameraTarget.position;
-        transform.rotation = Quaternion.Euler(30f + currentPitch, currentYaw, 0f); // base 30º + pitch
+        // Atualiza rotação local (opcional se quiser que o pivot incline visualmente)
+        transform.localRotation = Quaternion.Euler(30f + currentPitch, currentYaw, 0f);
+
+        // Atualiza offset do composer para “mover a câmera”
+        Vector2 targetOffset = new Vector2(
+            inputYaw * maxOffsetX,
+            inputPitch * maxOffsetY
+        );
+
+        currentOffset = Vector2.SmoothDamp(currentOffset, targetOffset, ref offsetVelocity, offsetSmoothTime);
+        composer.m_TrackedObjectOffset = currentOffset;
     }
 
     float ProcessMouseInput(float input)
