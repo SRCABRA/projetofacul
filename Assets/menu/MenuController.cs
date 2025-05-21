@@ -1,22 +1,27 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.EventSystems;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class MenuController : MonoBehaviour
-
 {
-    public void EntrarNoJogo(){
-        SceneManager.LoadScene("Testecenario");
-    }
-
-    public void Opções(){
+    void Start()
+    {
 
     }
 
-    public void SairDoJogo(){
+    void Update()
+    {
+
+    }
+
+
+
+    public void loadscene(string cena)
+    {
+        SceneManager.LoadScene(cena);
+    }
+
+    public void Quit()
+    {
         Application.Quit();
-        Debug.Log("saindo");
     }
 }
