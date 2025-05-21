@@ -7,23 +7,26 @@ public class WaterController : MonoBehaviour
     public float accelerationCurve = 0.000001f;
 
     [Header("Configuração da subida suave")]
-    public float smoothTime = 0.5f; // Tempo para suavizar subida rápida
+    public float smoothTime = 0.5f;
 
     [Header("Oscilação da água")]
-    public float bobbingAmplitude = 0.05f;     // Altura da oscilação vertical
-    public float bobbingFrequency = 1f;        // Velocidade da oscilação
-    public float rotationAmplitude = 0.5f;     // Grau da rotação suave
-    public float rotationFrequency = 0.5f;     // Velocidade da rotação
+    public float bobbingAmplitude = 0.05f;
+    public float bobbingFrequency = 1f;
+    public float rotationAmplitude = 0.5f;
+    public float rotationFrequency = 0.5f;
+
+    [Header("Delay antes da subida")]
+    public float startDelay = 5f; // Tempo (em segundos) que a água espera antes de começar a subir
 
     private float currentSpeed;
     private bool risingFast = false;
     private float fastTargetY;
-    private float velocity = 0f; // usado pelo SmoothDamp
+    private float velocity = 0f;
 
     private Vector3 initialPosition;
     private Quaternion initialRotation;
 
-    private float waterTime = 0f; // tempo customizado que respeita o pause
+    private float waterTime = 0f;
 
     void Start()
     {
@@ -43,15 +46,19 @@ public class WaterController : MonoBehaviour
 
     void Update()
     {
-        // Impede movimentação com o jogo pausado ou praticamente pausado
         if (Time.timeScale < 0.01f) return;
 
-        // Garante um deltaTime mínimo para evitar bugs em slow motion
         float dt = Mathf.Max(Time.deltaTime, 0.02f);
-
         waterTime += dt;
 
         Vector3 position = transform.position;
+
+        // Espera antes de começar a subir
+        if (waterTime < startDelay)
+        {
+            ApplyWaterBobbing(); // Pode manter a oscilação mesmo parada
+            return;
+        }
 
         if (risingFast)
         {
@@ -77,22 +84,18 @@ public class WaterController : MonoBehaviour
             currentSpeed += accelerationCurve * dt;
         }
 
-
         ApplyWaterBobbing();
     }
 
     private void ApplyWaterBobbing()
     {
-        // Usa o tempo controlado manualmente
         float bobbingOffset = Mathf.Sin(waterTime * bobbingFrequency) * bobbingAmplitude;
         float rotationOffset = Mathf.Sin(waterTime * rotationFrequency) * rotationAmplitude;
 
-        // Aplica a oscilação na posição Y
         Vector3 pos = transform.position;
         pos.y += bobbingOffset;
         transform.position = pos;
 
-        // Aplica rotação suave no eixo Z (parece com "balanço")
         Vector3 rot = initialRotation.eulerAngles;
         rot.z += rotationOffset;
         transform.rotation = Quaternion.Euler(rot);
