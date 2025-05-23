@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/teste1.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
+    path: Assets/MENU.unity
+    guid: d03d56a09c4811c4182cd065f0c7f66d
+  - enabled: 1
     path: Assets/JOGOFEITO.unity
     guid: 0885160f574668f47bc087c7e07ce760
   m_configObjects:
