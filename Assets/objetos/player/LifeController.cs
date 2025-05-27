@@ -14,13 +14,14 @@ public class LifeController : MonoBehaviour
 
     [Header("Referências")]
     [SerializeField] private Transform pizzaGhost;
-    [SerializeField] private GameObject deathScreen; // Painel da tela de morte
+    [SerializeField] private GameObject deathScreen;
 
     private Transform[] pizzaBoxes;
     private Vector3[] originalPositions;
-    private bool isGameOver = false; // Evita múltiplas execuções do Game Over
+    private bool isGameOver = false;
+    private bool isPlayerDead = false;
+    private bool pizzasEntregues = false;
 
-    
 
     void Start()
     {
@@ -42,7 +43,6 @@ public class LifeController : MonoBehaviour
             pizzaGhost.gameObject.SetActive(false);
         }
 
-        // Desativa a tela de morte no início do jogo
         if (deathScreen != null)
         {
             deathScreen.SetActive(false);
@@ -51,20 +51,23 @@ public class LifeController : MonoBehaviour
 
     void Update()
     {
-        if (enableGameOverCheck) CheckGameOver();
+        if (enableGameOverCheck && !isGameOver)
+        {
+            CheckGameOver();
+        }
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        
-        if (enableInvulnerability && collision.gameObject.CompareTag("Enemy") && !isInvulnerable)
+        if (!enableInvulnerability || isInvulnerable) return;
+
+        if (collision.gameObject.CompareTag("Enemy") || collision.gameObject.CompareTag("BulletEnemy"))
         {
-            if (enablePizzaThrowing) ThrowPizzaBox();
-            StartCoroutine(InvulnerabilityCoroutine(invulnerabilityDuration));
-        }
-        if (enableInvulnerability && collision.gameObject.CompareTag("BulletEnemy") && !isInvulnerable)
-        {
-            if (enablePizzaThrowing) ThrowPizzaBox();
+            if (enablePizzaThrowing)
+            {
+                ThrowPizzaBox();
+            }
+
             StartCoroutine(InvulnerabilityCoroutine(invulnerabilityDuration));
         }
     }
@@ -81,6 +84,12 @@ public class LifeController : MonoBehaviour
                 rb.AddForce(transform.forward * 10f, ForceMode.Impulse);
                 rb.constraints = RigidbodyConstraints.FreezeRotation;
                 child.SetParent(null);
+
+                if (enableGameOverCheck)
+                {
+                    CheckGameOver(); // Verifica imediatamente após perder pizza
+                }
+
                 return;
             }
         }
@@ -122,46 +131,63 @@ public class LifeController : MonoBehaviour
 
     void CheckGameOver()
     {
-        if (isGameOver) return;
+        if (isGameOver || pizzasEntregues) return;
 
         GameObject[] remainingBoxes = GameObject.FindGameObjectsWithTag("PizzaBox");
         bool allBoxesDestroyed = remainingBoxes.Length == 0 || (remainingBoxes.Length == 1 && remainingBoxes[0] == pizzaGhost.gameObject);
-        bool playerDestroyed = GameObject.FindGameObjectWithTag("Player") == null;
 
-        if (allBoxesDestroyed || playerDestroyed)
+        if (allBoxesDestroyed || isPlayerDead)
         {
             isGameOver = true;
-            StartCoroutine(GameOverRoutine()); // Espera 2 segundos antes de ativar a tela
+            StartCoroutine(GameOverRoutine());
         }
+    }
+
+    public void MarkPizzaDelivered()
+    {
+        pizzasEntregues = true;
+        Debug.Log("Pizzas entregues! Game Over desativado.");
+    }
+
+
+    public void Die()
+    {
+        if (isPlayerDead) return;
+
+        isPlayerDead = true;
+
+        // Desativa controles, mas não destrói imediatamente o jogador
+        GetComponent<PlayerController1>().enabled = false;
+        GetComponent<Rigidbody>().isKinematic = true;
+
+        CheckGameOver(); // Chama game over imediatamente
     }
 
     IEnumerator GameOverRoutine()
     {
         Debug.Log("Game Over! Exibindo tela de morte em 2 segundos...");
-        yield return new WaitForSeconds(2f); // Aguarda 2 segundos
-
-        ShowDeathScreen(); // Agora a tela aparece depois da espera
+        yield return new WaitForSeconds(2f);
+        ShowDeathScreen();
     }
 
-void ShowDeathScreen()
-{
-    Debug.Log("Iniciando transição para tela de Game Over.");
-
-    ScreenTransition transition = FindFirstObjectByType<ScreenTransition>();
-    if (transition != null)
+    void ShowDeathScreen()
     {
-        transition.StartTransition(() =>
+        Debug.Log("Iniciando transição para tela de Game Over.");
+
+        ScreenTransition transition = FindFirstObjectByType<ScreenTransition>();
+        if (transition != null)
         {
+            transition.StartTransition(() =>
+            {
+                if (deathScreen != null)
+                    deathScreen.SetActive(true);
+            });
+        }
+        else
+        {
+            Debug.LogWarning("Nenhum ScreenTransition encontrado na cena!");
             if (deathScreen != null)
                 deathScreen.SetActive(true);
-        });
+        }
     }
-    else
-    {
-        Debug.LogWarning("Nenhum ScreenTransition encontrado na cena!");
-        if (deathScreen != null)
-            deathScreen.SetActive(true);
-    }
-}
-
 }

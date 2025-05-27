@@ -15,19 +15,23 @@ public class EnemyPai : MonoBehaviour
     [SerializeField] public float danoBackpack = 3f;
 
     protected Rigidbody rb;
-    protected Renderer enemyRenderer;
-    private Color originalColor;
+    protected Renderer[] renderers;
+    private Color[] originalColors;
     private bool isFlashing = false;
     private bool isJumping = false;
 
     protected virtual void Start()
     {
         rb = GetComponent<Rigidbody>();
-        enemyRenderer = GetComponent<Renderer>();
 
-        if (enemyRenderer != null)
+        // Pega todos os renderers do inimigo e seus filhos
+        renderers = GetComponentsInChildren<Renderer>();
+        originalColors = new Color[renderers.Length];
+
+        // Armazena a cor original de cada renderer
+        for (int i = 0; i < renderers.Length; i++)
         {
-            originalColor = enemyRenderer.material.color;
+            originalColors[i] = renderers[i].material.color;
         }
     }
 
@@ -43,12 +47,6 @@ public class EnemyPai : MonoBehaviour
 
     protected virtual void OnCollisionEnter(Collision collision)
     {
-
-
-
-
-
-
         if (!enableDamage) return;
 
         if (collision.gameObject.CompareTag("AreaAttack"))
@@ -87,20 +85,28 @@ public class EnemyPai : MonoBehaviour
 
     protected void FlashRed()
     {
-        if (enemyRenderer != null && !isFlashing)
+        if (!isFlashing)
         {
             isFlashing = true;
-            enemyRenderer.material.color = Color.red;
-            Invoke(nameof(ResetColor), 0.2f);
+
+            // Define a cor vermelha em todos os renderers
+            foreach (var rend in renderers)
+            {
+                rend.material.color = Color.red;
+            }
+
+            Invoke(nameof(ResetColor), 0.2f); // Volta à cor original após 0.2 segundos
         }
     }
 
     protected void ResetColor()
     {
-        if (enemyRenderer != null)
+        // Restaura a cor original de cada renderer
+        for (int i = 0; i < renderers.Length; i++)
         {
-            enemyRenderer.material.color = originalColor;
+            renderers[i].material.color = originalColors[i];
         }
+
         isFlashing = false;
     }
 
@@ -108,13 +114,13 @@ public class EnemyPai : MonoBehaviour
     {
         if (rb != null)
         {
-            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z); // Corrigido de linearVelocity para velocity
             rb.AddForce(Vector3.up * 10f, ForceMode.VelocityChange);
         }
     }
 
     protected virtual void Drop()
     {
-        // Implementação vazia, caso um inimigo filho precise sobrescrever esse método
+        // Implementação vazia para ser sobrescrita pelos filhos
     }
 }
