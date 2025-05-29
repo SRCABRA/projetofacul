@@ -13,7 +13,7 @@ public class LifeController : MonoBehaviour
     private bool isInvulnerable = false;
 
     [Header("Referências")]
-    [SerializeField] private Transform pizzaGhost;
+    public Transform pizzaGhost;
     [SerializeField] private GameObject deathScreen;
 
     private Transform[] pizzaBoxes;
@@ -134,7 +134,17 @@ public class LifeController : MonoBehaviour
         if (isGameOver || pizzasEntregues) return;
 
         GameObject[] remainingBoxes = GameObject.FindGameObjectsWithTag("PizzaBox");
-        bool allBoxesDestroyed = remainingBoxes.Length == 0 || (remainingBoxes.Length == 1 && remainingBoxes[0] == pizzaGhost.gameObject);
+        bool allBoxesDestroyed = true;
+
+        foreach (GameObject box in remainingBoxes)
+        {
+            if (box != null && box != pizzaGhost?.gameObject)
+            {
+                allBoxesDestroyed = false;
+                break;
+            }
+        }
+
 
         if (allBoxesDestroyed || isPlayerDead)
         {
@@ -190,4 +200,19 @@ public class LifeController : MonoBehaviour
                 deathScreen.SetActive(true);
         }
     }
+
+    public int GetPizzaCount()
+    {
+        int count = 0;
+        foreach (Transform child in transform)
+        {
+            if (child.CompareTag("PizzaBox") && child != pizzaGhost)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
 }
+
