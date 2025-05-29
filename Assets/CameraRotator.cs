@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class daledale : MonoBehaviour
+public class AutoOrbitCamera : MonoBehaviour
 {
     public Transform target;      // Objeto alvo
     public float distance = 5.0f; // Distância da câmera para o alvo
