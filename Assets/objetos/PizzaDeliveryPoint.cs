@@ -5,6 +5,8 @@ public class PizzaDeliveryPoint : MonoBehaviour
     [Header("Ponto de entrega das pizzas")]
     [SerializeField] private Transform deliveryPosition;
 
+    public bool JaEntregou = false;
+
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
@@ -14,21 +16,26 @@ public class PizzaDeliveryPoint : MonoBehaviour
 
         int pizzasEntregues = 0;
 
-        foreach (Transform child in other.transform)
+        // Corrige o problema de modificar a hierarquia durante a iteração
+        Transform[] filhos = other.GetComponentsInChildren<Transform>();
+
+        foreach (Transform child in filhos)
         {
-            if (child.CompareTag("PizzaBox"))
+            if (child.parent == other.transform && child.CompareTag("PizzaBox") && child != life.pizzaGhost)
             {
-                // Move a pizza para a posição de entrega
                 child.SetParent(null);
                 child.position = deliveryPosition.position + new Vector3(0, 0.5f * pizzasEntregues, 0);
+
                 Rigidbody rb = child.GetComponent<Rigidbody>();
                 if (rb != null) Destroy(rb);
 
                 pizzasEntregues++;
+                JaEntregou = true;
             }
         }
 
-        life.MarkPizzaDelivered(); // Impede a morte por falta de pizza
+        life.MarkPizzaDelivered(); // Evita game over por falta de pizza
+
         Debug.Log($"Pizzas entregues com sucesso: {pizzasEntregues}");
     }
 }
